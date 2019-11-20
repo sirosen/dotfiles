@@ -11,3 +11,5 @@ cd into this directory (stow automatically targets the parent dir by default).
 
   stow vim
   stow zsh
+  stow tmux
+  stow git

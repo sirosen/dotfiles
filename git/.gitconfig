@@ -1,0 +1,10 @@
+[user]
+    email = sirosen@globus.org
+    name = Stephen Rosen
+    signingkey = FC694E40DC03A8B702D96372CF7E843C41E814C9
+[push]
+	default = simple
+[core]
+	excludesfile = /mnt/ebs/home/sirosen/.gitignore_global
+[alias]
+	tree = log --graph --decorate --all
