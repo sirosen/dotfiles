@@ -1,0 +1,92 @@
+\documentclass[11pt]{beamer}
+
+\mode<presentation>{\usetheme{default}
+                    \setbeamertemplate{navigation symbols}{}
+}
+
+\usepackage{graphicx}
+
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+
+%% code styles
+
+\usepackage{textcomp}
+\usepackage{listings}
+% inline code
+\lstdefinestyle{inline}{basicstyle=\ttfamily}
+% code block
+\lstdefinestyle{block}{belowcaptionskip=1\baselineskip,
+                       breaklines=true,
+                       frame=LrTb,
+                       xleftmargin=0pt,
+                       basicstyle=\tiny\ttfamily
+}
+% single command block
+\lstdefinestyle{onecmd}{belowcaptionskip=1\baselineskip,
+                        breaklines=true,
+                        frame=lrtb,
+                        xleftmargin=0pt,
+                        basicstyle=\ttfamily
+}
+\lstdefinestyle{pyblock}{belowcaptionskip=1\baselineskip,
+                         breaklines=true,
+                         frame=LrTb,
+                         xleftmargin=0pt,
+                         basicstyle=\tiny\ttfamily,
+                         language=Python,
+                         otherkeywords={self},
+                         keywordstyle=\tiny\ttfamily\bf\color{deepblue},
+                         emph={MyClass,__init__},
+                         emphstyle=\tiny\ttfamily\bf\color{deepred},
+                         stringstyle=\color{deepgreen},
+                         showstringspaces=false
+}
+% default style is "inline"
+\lstset{style=inline,upquote=true}
+
+
+%% Globus Branding
+
+\definecolor{GlobusBlue}{rgb}{0.15, 0.32, 0.56}
+
+% insert the globus logo into the header
+\usepackage{tikz}
+\addtobeamertemplate{frametitle}{}
+{\begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north east,yshift=2pt] at (current page.north east)
+    {\includegraphics[height=0.8cm]{globus-logo.png}};
+\end{tikzpicture}
+}
+
+% fix titleframe colors
+\setbeamercolor{frametitle}{fg=white,bg=GlobusBlue}
+\setbeamercolor{title}{fg=white}
+\setbeamercolor{author}{fg=white}
+\setbeamercolor{date}{fg=white}
+
+
+
+\title{\textbf{TITLE HERE}\\
+SUBTITLE}
+\author{\includegraphics[height=1cm]{globus-logo.png}\\Stephen Rosen}
+\date{\today}
+
+
+
+\begin{document}
+
+{% blue BG for title slide only
+\setbeamercolor{background canvas}{fg=white,bg=GlobusBlue}
+\frame{\titlepage}
+}
+
+\begin{frame}
+    \frametitle{Ctrl+D}
+    EOF
+\end{frame}
+
+\end{document}

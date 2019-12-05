@@ -25,6 +25,18 @@ magick-hostname-background-gnome3 () {
     gsettings set "org.gnome.desktop.background picture-options" "stretched"
 }
 
+init-project-template () {
+  templatedir="$1"
+  if [ ! -d ~/.project-templates/$1 ]; then
+      echo "error: nonexistent project template $1"
+      return 1
+  elif [ "$(ls -A)" != "" ]; then
+      echo "conflict: cwd must be empty"
+      return 1
+  fi
+  cp ~/.project-templates/$1/* .
+}
+
 # git
 
 github-clone () {
