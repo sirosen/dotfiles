@@ -15,7 +15,7 @@ forget-known-host () {
 cwd-fileserver () {
   local port=8000
   [ $# -gt 0 ] && port="$1"
-  python3 -m http.server "$port"
+  python3 -m http.server "$port" --bind localhost
 }
 
 magick-hostname-background-gnome3 () {

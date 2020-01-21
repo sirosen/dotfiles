@@ -11,6 +11,8 @@ PATH="$PATH:$HOME/.hextc"
 PYENV_ROOT="$HOME/.pyenv"
 PYENV_SHIMS="$HOME/.pyenv/shims"
 PATH="$PATH:$PYENV_SHIMS:$PYENV_ROOT/bin"
+# add poetry
+PATH="$PATH:$HOME/.poetry/bin"
 
 export PYENV_ROOT
 export PATH

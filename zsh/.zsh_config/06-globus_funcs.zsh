@@ -88,3 +88,8 @@ nexus-auth () {
         '{"username":"'"$1"'","password":"'"$2"'"}' \
         https://nexus.api.globusonline.org/authenticate
 }
+
+globus-username-to-urn () {
+  local username="$1"
+  echo "urn:globus:auth:identity:$(globus get-identities "$username" --jmespath 'identities[].id' -Funix)"
+}
