@@ -1,11 +1,27 @@
 set nomodeline "patch over a vuln
 set nocompatible "Use vim mode
 
-" turn off filetype during plugin setup
-filetype off
-filetype plugin indent off
+" Soft tabs, 4-ist mode
+set tabstop=4 shiftwidth=4 expandtab
+set wrap
+set textwidth=79
+" incremental search for ease
+set incsearch
+" use undofiles and turn off swapfiles
+set undodir=~/.vim/undodir
+set undofile
+set noswapfile
+" show line position
+set ruler
+" always show status bar
+set laststatus=2
+" turn off netrw banner
+let g:netrw_banner = 0
 
 if isdirectory($HOME.'/.vim/bundle/vundle')
+  " turn off filetype during plugin setup
+  filetype off
+  filetype plugin indent off
   " Use Vundle Plugins
   set rtp+=~/.vim/bundle/vundle/
   call vundle#rc()
@@ -38,41 +54,16 @@ if isdirectory($HOME.'/.vim/bundle/vundle')
   Plugin 'vim-airline/vim-airline-themes'
 
   call vundle#end()
+  " turn plugins and indentation on (off for plugin setup)
+  filetype plugin indent on
+  syntax enable
 endif
 
-" YouCompleteMe
+" plugin settings
 let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_global_ycm_extra_conf = $HOME.'/.ycm_global_extra_conf.py'
-
-" airline settings
-if isdirectory($HOME.'/.vim/bundle/vim-airline')
-    " let g:airline_theme='solarized'
-    set laststatus=2
-endif
-
-" vim-markdown settings
 let g:vim_markdown_folding_disabled=1
-
-" vim-json settings
 let g:vim_json_syntax_conceal = 0
-
-" Soft tabs, 4-ist mode
-set tabstop=4 shiftwidth=4 expandtab
-set wrap
-set textwidth=79
-" incremental search for ease
-set incsearch
-" use undofiles and turn off swapfiles
-set undodir=~/.vim/undodir
-set undofile
-set noswapfile
-" show line position
-set ruler
-" turn off netrw banner
-let g:netrw_banner = 0
-" turn plugins and indentation on (off for plugin setup)
-filetype plugin indent on
-syntax enable
 
 " colors
 set termguicolors
@@ -82,6 +73,7 @@ colorscheme gruvbox
 
 " ALE conf
 let g:ale_fixers = {'*': [], 'python': ['isort', 'black'], 'json': ['jq']}
+let g:ale_linters = {'*': [], 'python': ['flake8']}
 let g:airline#extensions#ale#enabled = 1
 hi ALEStyleError guibg=yellow
 
