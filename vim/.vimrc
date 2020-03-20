@@ -46,6 +46,8 @@ if isdirectory($HOME.'/.vim/bundle/vundle')
   " Linting pluins
   Plugin 'w0rp/ale'
 
+  " Editorconfig
+  Plugin 'editorconfig/editorconfig-vim'
   " Git plugins
   Plugin 'tpope/vim-fugitive'
 
@@ -64,6 +66,7 @@ let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_global_ycm_extra_conf = $HOME.'/.ycm_global_extra_conf.py'
 let g:vim_markdown_folding_disabled=1
 let g:vim_json_syntax_conceal = 0
+let g:EditorConfig_exclude_patterns = ['fugitive://.*']
 
 " colors
 set termguicolors
@@ -75,6 +78,14 @@ colorscheme gruvbox
 let g:ale_fixers = {'*': [], 'python': ['isort', 'black'], 'json': ['jq']}
 let g:ale_linters = {'*': [], 'python': ['flake8']}
 let g:airline#extensions#ale#enabled = 1
+let g:airline_left_sep = '»'
+let g:airline_right_sep = '«'
+if !exists('g:airline_symbols')
+  let g:airline_symbols = {}
+endif
+let g:airline_symbols.linenr = '¶'
+let g:airline_symbols.maxlinenr = '㏑'
+let g:airline_symbols.whitespace = 'Ξ'
 hi ALEStyleError guibg=yellow
 
 
@@ -122,3 +133,7 @@ augroup END
 " default leader=\
 nmap <silent> <leader>n :ALENext<cr>
 nmap <silent> <leader>f :ALEFix<cr>
+
+
+" define a nice way to run shfmt
+command ShFmt %!shfmt -ci -sr -i 2

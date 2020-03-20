@@ -81,6 +81,12 @@ update-cookbook-version () {
     sed -i "s/\"$cb\": \"= [[:digit:]]\+.[[:digit:]]\+.[[:digit:]]\+\"/\"$cb\": \"= $ver\"/g" ./*
 }
 
+chef-find-sshable-nodes () {
+    for h in $(knife node list); do
+        EC2SSH_DISABLE_KNOWN_HOSTS=1 ec2ssh -o "ConnectTimeout=1" "$h" '[ -d /var/chef/ ] && hostname' 2>/dev/null
+    done
+}
+
 # service-specific
 
 nexus-auth () {
