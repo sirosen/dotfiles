@@ -17,11 +17,11 @@ _color_text () {
         ;;
       "--fg")
         shift 1
-        hextc "$(~/bin/hextc.sh/gruvbox/dark_colorname.sh "$1")"
+        hextc "$(~/.hextc/gruvbox/dark_colorname.sh "$1")"
         ;;
       "--bg")
         shift 1
-        hextc "$(~/bin/hextc.sh/gruvbox/dark_colorname.sh "$1")" --bg
+        hextc "$(~/.hextc/gruvbox/dark_colorname.sh "$1")" --bg
         ;;
     esac
     shift 1

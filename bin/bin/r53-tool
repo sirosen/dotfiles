@@ -1,0 +1,184 @@
+#!/usr/bin/env python3
+"""
+Tool for simple Route53 management.
+
+Consumes records of the following forms
+    DELETE <record_name>
+    <record_name> <record_type> <record_value>
+    <record_name> <record_type> <record_value> <ttl>
+
+DELETE means delete, the others are handled as UPSERT. Automatically finds the
+best matching hosted zone for a given record in the current account.
+
+Multiple records with the same name will coalesce into a single record with
+multiple values.
+
+Behavior is undefined if you give DELETE and UPSERT records in a single file
+for the same name.
+
+Examples:
+
+    DELETE foo.sirosen.globuscs.info
+    gcsv5.sirosen.globuscs.info CNAME ec2-54-237-153-78.compute-1.amazonaws.com 60
+    gcsv5.sirosen.globuscs.info CNAME ec2-54-237-153-78.compute-1.amazonaws.com
+"""
+import argparse
+import shlex
+import sys
+
+import boto3
+
+
+class RecordSpec:
+    def __init__(self, action, name, record_type=None, value=None, ttl=None):
+        self.action = action
+        self.name = name
+        self.record_type = record_type
+        self.values = [value]
+        self.ttl = None
+
+        if not self.name.endswith("."):
+            self.name += "."
+
+    def get_ttl(self):
+        return self.ttl if self.ttl is not None else 60
+
+    def add_value(self, value):
+        self.values.append(value)
+
+    def find_best_match(self, domains):
+        best_match = None
+        best_match_length = -1
+        for domain in domains:
+            cur_match = 0
+            for i in range(len(domain)):
+                if self.name.endswith(domain[-(i):]):
+                    cur_match = i
+                    continue
+                break
+            if cur_match and cur_match > best_match_length:
+                best_match = domain
+
+        if not best_match:
+            raise ValueError(
+                "did not find a match for {} in {}".format(self.name, domains)
+            )
+        return best_match
+
+    def as_changeset(self):
+        if self.action in ("CREATE", "UPSERT"):
+            return {
+                "Action": self.action,
+                "ResourceRecordSet": {
+                    "Name": self.name,
+                    "Type": self.record_type,
+                    "TTL": self.get_ttl(),
+                    "ResourceRecords": [{"Value": v} for v in self.values],
+                },
+            }
+        elif self.action == "DELETE":
+            return {"Action": "DELETE", "ResourceRecordSet": {"Name": self.name}}
+        else:
+            raise ValueError
+
+
+def _parse_line(l):
+    raw = shlex.split(l)
+    if raw[0].lower() == "delete":
+        return RecordSpec("DELETE", raw[1])
+
+    if len(raw) < 3 or len(raw) > 4:
+        raise ValueError
+    ttl = int(raw[3]) if len(raw) == 4 else None
+    return RecordSpec("UPSERT", raw[0], record_type=raw[1], value=raw[2], ttl=ttl)
+
+
+def _all_hosted_zones(client):
+    paginator = client.get_paginator("list_hosted_zones")
+    for page in paginator.paginate():
+        for hz in page["HostedZones"]:
+            yield hz
+
+
+def _all_records(client, hz_id):
+    paginator = client.get_paginator("list_resource_record_sets")
+    for page in paginator.paginate(HostedZoneId=hz_id):
+        for item in page["ResourceRecordSets"]:
+            yield item
+
+
+def _do_listing(client, hosted_zones):
+    domains = list(hosted_zones.keys())
+    for domain in domains:
+        print("# == {} ==".format(domain))
+        for record in _all_records(client, hosted_zones[domain]):
+            for value in record["ResourceRecords"]:
+                print(
+                    "{} {} {} {}".format(
+                        record["Name"], record["Type"], value["Value"], record["TTL"]
+                    )
+                )
+    sys.exit(0)
+
+
+def _do_update(filename, client, hosted_zones):
+    domains = list(hosted_zones.keys())
+
+    records = []
+    existing_records = {}
+    with open(filename, "r") as f:
+        for line in f:
+            new_record = _parse_line(line)
+            key = (new_record.name, new_record.record_type)
+            if key in existing_records:
+                existing_records[key].add_value(new_record.values[0])
+                if existing_records[key].ttl is None:
+                    existing_records[key].ttl = new_record.ttl
+            else:
+                records.append(new_record)
+                existing_records[key] = new_record
+
+    update_batches = {}
+    for record in records:
+        match_domain = record.find_best_match(domains)
+        if match_domain not in update_batches:
+            update_batches[match_domain] = []
+        update_batches[match_domain].append(record)
+
+    for domain, update_records in update_batches.items():
+        res = client.change_resource_record_sets(
+            HostedZoneId=hosted_zones[domain],
+            ChangeBatch={"Changes": [x.as_changeset() for x in update_records]},
+        )
+        print(res)
+
+    print("DONE!")
+    sys.exit(0)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("FILENAME", nargs="?")
+    parser.add_argument("--list", default=False, action="store_true")
+    args = parser.parse_args()
+
+    client = boto3.client("route53")
+
+    if args.list and args.FILENAME:
+        parser.exit(2, "can't give both --list and FILENAME")
+    elif not args.list and not args.FILENAME:
+        parser.exit(2, "must give --list or FILENAME")
+
+    hosted_zones = list(_all_hosted_zones(client))
+    hosted_zones = {x["Name"]: x["Id"] for x in hosted_zones}
+
+    if args.list:
+        _do_listing(client, hosted_zones)
+    else:
+        _do_update(args.FILENAME, client, hosted_zones)
+
+
+if __name__ == "__main__":
+    main()

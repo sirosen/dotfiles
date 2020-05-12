@@ -1,0 +1,6 @@
+# platform-specific binaries (not scripts)
+# which I want in this dir but not in git
+shfmt
+
+# included git repos and such
+testssl.sh

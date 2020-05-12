@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+
+import argparse
+import functools
+
+
+def parse_line(line):
+    fname = line.split()[0]
+    data = line.split("%")[1].strip()
+    if data == "":
+        return []
+
+    data = [x.strip() for x in data.split(",")]
+    pairs = []
+    for d in data:
+        pair = d.split("-")
+        if len(pair) == 2:
+            pairs.append(pair)
+        else:
+            pairs.append((pair[0], pair[0]))
+    return [(fname, int(x), int(y)) for x, y in pairs]
+
+
+def parse_all(fp):
+    return functools.reduce(
+        lambda x, y: x + parse_line(y) if y.strip() else [], fp, []
+    )
+
+
+def find_best(data):
+    maxdiff, maxdiffindex = 0, -1
+    for idx, (fname, x, y) in enumerate(data):
+        diff = y - x
+        if diff > maxdiff:
+            maxdiff = diff
+            maxdiffindex = idx
+    return data[maxdiffindex]
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Find best lines to attack from coverage output"
+    )
+    parser.add_argument(
+        "INPUT_FILE",
+        type=argparse.FileType("r"),
+        help="File with coverage data to analyze",
+    )
+    args = parser.parse_args()
+
+    data = parse_all(args.INPUT_FILE)
+    fname, start, end = find_best(data)
+    print(f"Best line range:\n  {fname}\n  {start} - {end}")
+
+
+if __name__ == "__main__":
+    main()
