@@ -22,19 +22,24 @@ def parse_line(line):
 
 
 def parse_all(fp):
-    return functools.reduce(
-        lambda x, y: x + parse_line(y) if y.strip() else [], fp, []
-    )
+    return functools.reduce(lambda x, y: x + parse_line(y) if y.strip() else [], fp, [])
 
 
-def find_best(data):
-    maxdiff, maxdiffindex = 0, -1
-    for idx, (fname, x, y) in enumerate(data):
+def find_best(data, n):
+    # list of triples: (diff, (start, end), filename)
+    best_diffs = []
+
+    for (fname, x, y) in data:
         diff = y - x
-        if diff > maxdiff:
-            maxdiff = diff
-            maxdiffindex = idx
-    return data[maxdiffindex]
+        if len(best_diffs) < n:
+            best_diffs.append((diff, (x, y), fname))
+            best_diffs.sort()
+            continue
+        min_tracked_diff = best_diffs[0][0]
+        if diff > min_tracked_diff:
+            best_diffs[0] = (diff, (x, y), fname)
+            best_diffs.sort()
+    return [(fname, start, end) for (diff, (start, end), fname) in best_diffs]
 
 
 def main():
@@ -42,15 +47,21 @@ def main():
         description="Find best lines to attack from coverage output"
     )
     parser.add_argument(
+        "-n", type=int, default=1, help="Find the best 'n' diffs (default: 1)"
+    )
+    parser.add_argument(
         "INPUT_FILE",
         type=argparse.FileType("r"),
         help="File with coverage data to analyze",
     )
     args = parser.parse_args()
+    if args.n < 1:
+        parser.error("can't have -n less than 1")
 
     data = parse_all(args.INPUT_FILE)
-    fname, start, end = find_best(data)
-    print(f"Best line range:\n  {fname}\n  {start} - {end}")
+    print(f"Best line range{'' if args.n == 1 else 's'}:")
+    for fname, start, end in find_best(data, args.n):
+        print(f"  {fname}: {start} - {end}")
 
 
 if __name__ == "__main__":
