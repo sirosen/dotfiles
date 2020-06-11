@@ -123,6 +123,24 @@ EOH
   chmod u+x .git/hooks/pre-commit
 }
 
+git-equivalent-in-master () {
+  if ! git status --porcelain > /dev/null; then
+    echo "working tree not clean"
+    return 2
+  fi
+  target="$1"
+  git checkout --quiet master~0
+  git merge --quiet --no-commit "$1"
+  echo "------"
+  if git diff --quiet master; then
+    echo "\e[92m$1 or an equivalent changeset was merged to master\e[0m"
+  else
+    echo "\e[91m$1 was not merged to master\e[0m"
+  fi
+  git reset --hard master  # discard
+  git checkout --quiet master  # go to master branch
+}
+
 # aws
 
 lookup-instance-id () {
