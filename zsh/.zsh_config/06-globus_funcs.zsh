@@ -99,3 +99,13 @@ globus-username-to-urn () {
   local username="$1"
   echo "urn:globus:auth:identity:$(globus get-identities "$username" --jmespath 'identities[].id' -Funix)"
 }
+
+
+# globus-cli wrappers
+globus-my-shared-eps () {
+  globus endpoint search \
+      --filter-scope my-endpoints -Fjson \
+      --limit 100 \
+      --jq 'DATA[?host_endpoint_id!=null].id' \
+      -Funix | tr '\t' '\n'
+}

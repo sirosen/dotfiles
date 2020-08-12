@@ -4,3 +4,7 @@ shfmt
 
 # included git repos and such
 testssl.sh
+
+# managed venvs for python tools installed by the managed venvs script
+.managed-venvs
+pylint
