@@ -71,6 +71,6 @@ precmd () {
     fi
 
     PROMPT="${ecodeprompt}${PROMPT} \$ "
-    export PS1="$PROMPT"
+    PS1="$PROMPT"
 }
 
