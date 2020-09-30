@@ -4,6 +4,8 @@
     signingkey = FC694E40DC03A8B702D96372CF7E843C41E814C9
 [push]
 	default = simple
+[pull]
+	ff = only
 [core]
 	excludesfile = /mnt/ebs/home/sirosen/.gitignore_global
 [alias]
@@ -14,5 +16,3 @@
       git fetch $remote pull/$1/head ; \
       git checkout FETCH_HEAD ; \
     }; f"
-[pull]
-	ff = only

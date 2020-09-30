@@ -118,8 +118,9 @@ augroup ag_filetype
   au!
   autocmd FileType python :call ApplyPythonSettings()
   autocmd FileType diff  set textwidth=0
-  autocmd FileType ruby,json,yml,yaml setl sw=2 sts=2
+  autocmd FileType ruby,json,yml,yaml,bash,sh setl sw=2 sts=2
   autocmd BufNewFile,BufRead *.onc set filetype=json
+  autocmd BufNewFile,BufRead *.painless set filetype=groovy
   autocmd FileType gitcommit set textwidth=70
 augroup END
 
