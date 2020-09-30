@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -euo pipefail
+
+dir="$(mktemp -d)"
+cleanup() { rm -rf "$dir"; }
+trap cleanup EXIT
+
+cd "$dir"
+
+chrome_driver_vers=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
+curl -s "https://chromedriver.storage.googleapis.com/${chrome_driver_vers}/chromedriver_linux64.zip" > chrome_driver.zip
+unzip chrome_driver.zip
+sudo mv chromedriver /usr/local/bin/chromedriver

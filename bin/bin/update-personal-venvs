@@ -6,6 +6,11 @@ cd "$(dirname "$0")"
 # map toolnames (executable names) to their requirement lists
 declare -A toolmap
 toolmap[pylint]="pylint"
+toolmap[pipx]="pipx"
+toolmap[black]="black"
+toolmap[isort]="isort"
+toolmap[flake8]='flake8[flake8-bugbear]'
+toolmap[globus-search]='globus-search-cli'
 
 mkdir -p .managed-venvs
 pushd .managed-venvs
@@ -28,6 +33,6 @@ popd
 for toolname in "${!toolmap[@]}"; do
   envname="${toolname}-env"
   if [ ! -f "$toolname" ]; then
-    ln -s .managed-venvs/$envname/bin/$toolname $toolname
+    ln -s ".managed-venvs/$envname/bin/$toolname" "$toolname"
   fi
 done

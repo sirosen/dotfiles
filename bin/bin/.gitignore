@@ -4,7 +4,18 @@ shfmt
 
 # included git repos and such
 testssl.sh
+gti
 
 # managed venvs for python tools installed by the managed venvs script
 .managed-venvs
 pylint
+pipx
+black
+isort
+flake8
+globus-search
+
+# managed npm tools
+npm-packages
+openapi3-generator
+stylelint
