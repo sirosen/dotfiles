@@ -3,16 +3,19 @@ set -e
 
 cd "$(dirname "$0")"
 
+binlink () {
+  if [ ! -f "$1" ]; then
+    ln -s "npm-packages/bin/$1" "$1"
+  fi
+}
+
 npm install -g \
   openapi3-generator \
   stylelint stylelint-config-standard \
-  jsonlint
-if [ ! -f openapi3-generator ]; then
-  ln -s npm-packages/bin/openapi3-generator openapi3-generator
-fi
-if [ ! -f stylelint ]; then
-  ln -s npm-packages/bin/stylelint stylelint
-fi
-if [ ! -f jsonlint ]; then
-  ln -s npm-packages/bin/jsonlint jsonlint
-fi
+  jsonlint \
+  ibm-openapi-validator \
+  @stoplight/spectral
+
+for x in openapi3-generator stylelint jsonlint lint-openapi spectral; do
+  binlink "$x"
+done

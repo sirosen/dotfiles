@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "will start a subshell in a dbus session to allow use of the keyring
+
+password hint: old github pass"
+
+# shellcheck disable=SC2016
+dbus-run-session -- sh -c 'python3 $HOME/bin/.activate-keyring-shell.py; zsh'
