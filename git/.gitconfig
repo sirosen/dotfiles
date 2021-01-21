@@ -16,3 +16,5 @@
       git fetch $remote pull/$1/head ; \
       git checkout FETCH_HEAD ; \
     }; f"
+[init]
+	defaultBranch = main
