@@ -18,8 +18,6 @@ profile2env-nexus () {
 
 
 globus-mfa-users () {
-  # special tuning param for ops-adminpy to turn off MFA
-  # export OPS_ADMIN_EXTERNAL_MFA=1
   local mfafile="$HOME/.globus_mfa_users"
   AWS_PROFILE="users" \
     ADMIN_AWS_MFA_SN="arn:aws:iam::942379385228:mfa/sirosen" \
@@ -28,8 +26,6 @@ globus-mfa-users () {
 }
 
 globus-mfa-users-bad () {
-  # special tuning param for ops-adminpy to turn off MFA
-  # export OPS_ADMIN_EXTERNAL_MFA=1
   local mfafile="$HOME/.globus_mfa_users"
   AWS_PROFILE="users" \
     ADMIN_AWS_MFA_SN="arn:aws:iam::280831789029:role/globus_admin" \
@@ -68,8 +64,19 @@ setprofile-dev () { _switch_aws_account dev; }
 export SWITCH_AWS_ACCOUNT_HOOK=_switch_aws_account
 
 set-sdk-env () {
-  export GLOBUS_SDK_ENVIRONMENT="$1"
+  case "$1" in
+    nil|none)
+      unset GLOBUS_SDK_ENVIRONMENT
+      ;;
+    *)
+      export GLOBUS_SDK_ENVIRONMENT="$1"
+      ;;
+  esac
 }
+_sdk_env_zsh_complete() {
+    _arguments "*: :((nil sandbox integration test staging preview production))"
+}
+compdef _sdk_env_zsh_complete set-sdk-env
 
 
 # chef
@@ -98,6 +105,35 @@ nexus-auth () {
 globus-username-to-urn () {
   local username="$1"
   echo "urn:globus:auth:identity:$(globus get-identities "$username" --jmespath 'identities[].id' -Funix)"
+}
+
+
+gcp-download-url () {
+  local showall
+  showall=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      "-h"|"--help")
+        echo "gcp-download-urls [-h|--help] [-a|--all]"
+        return 0
+        ;;
+      "-a"|"--all")
+        showall=1
+        ;;
+      *)
+        return 2
+    esac
+    shift 1
+  done
+
+  DOWNLOAD_BASE='https://downloads.globus.org/globus-connect-personal/v3'
+  if [ $showall -eq 0 ]; then
+    echo "${DOWNLOAD_BASE}/linux/stable/globusconnectpersonal-latest.tgz"
+  else
+    echo "LINUX:\n  ${DOWNLOAD_BASE}/linux/stable/globusconnectpersonal-latest.tgz"
+    echo "WIN:\n  ${DOWNLOAD_BASE}/windows/stable/globusconnectpersonal-latest.exe"
+    echo "MAC:\n  ${DOWNLOAD_BASE}/mac/stable/globusconnectpersonal-latest.dmg"
+  fi
 }
 
 
