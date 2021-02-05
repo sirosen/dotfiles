@@ -14,8 +14,9 @@ npm install -g \
   stylelint stylelint-config-standard \
   jsonlint \
   ibm-openapi-validator \
-  @stoplight/spectral
+  @stoplight/spectral \
+  lighthouse
 
-for x in openapi3-generator stylelint jsonlint lint-openapi spectral; do
+for x in openapi3-generator stylelint jsonlint lint-openapi spectral lighthouse; do
   binlink "$x"
 done

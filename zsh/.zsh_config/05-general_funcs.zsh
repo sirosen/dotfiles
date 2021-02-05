@@ -143,12 +143,19 @@ git-equivalent-in-master () {
 
 # aws
 
-lookup-instance-id () {
+ec2-lookup-instance-id () {
   local iid="$1"
   shift
   aws ec2 describe-instances \
       --query 'Reservations[].Instances[?InstanceId==`'"$iid"'`][] | [0]' \
       "$@"
+}
+
+ec2-instance-by-name () {
+  local iname="$1"
+  shift 1
+  aws ec2 describe-instances \
+      --filters "Name=tag:Name,Values=$iname" "$@"
 }
 
 # ssh
