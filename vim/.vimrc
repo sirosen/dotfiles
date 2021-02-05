@@ -75,11 +75,11 @@ set background=dark
 colorscheme gruvbox
 
 " ALE conf
-let g:ale_fixers = {'*': [], 'python': ['isort', 'black'], 'json': ['jq']}
+let g:ale_fixers = {'*': [], 'python': ['isort', 'black'], 'json': ['jq'], 'rust': ['rustfmt']}
 " isort fails to load pyproject conf when handling stdin without this
 "   https://github.com/dense-analysis/ale/issues/2885
 let g:ale_python_isort_options = '--settings-path .'
-let g:ale_linters = {'*': [], 'python': ['flake8'], 'json': ['jsonlint']}
+let g:ale_linters = {'*': [], 'python': ['flake8'], 'json': ['jsonlint'], 'rust': ['analyzer']}
 let g:airline#extensions#ale#enabled = 1
 let g:airline_left_sep = '»'
 let g:airline_right_sep = '«'

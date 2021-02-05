@@ -5,6 +5,8 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # add ~/bin , ~/.local/bin , ~/.cabal/bin
 PATH="$HOME/.local/bin:$HOME/.cabal/bin:$HOME/bin:$PATH"
+# rust
+PATH="$HOME/.cargo/bin:$PATH"
 # add rbenv
 PATH="$HOME/.rbenv/bin:$PATH"
 # add hextc
