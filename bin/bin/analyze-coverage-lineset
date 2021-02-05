@@ -1,7 +1,17 @@
 #!/usr/bin/env python3
+"""
+Find the best lines of coverage to attack from a coverage report.
+
+You can provide input as a file or to stdin. Use like so:
+    coverage report | analyze-coverage-lineset
+"""
 
 import argparse
 import functools
+import re
+import sys
+
+DELIM_LINE_RE = re.compile(r"^\-+$")
 
 
 def parse_line(line):
@@ -21,8 +31,23 @@ def parse_line(line):
     return [(fname, int(x), int(y)) for x, y in pairs]
 
 
+def inner_lines(fp):
+    gotfirst = False
+    while not gotfirst:
+        line = next(fp)
+        if DELIM_LINE_RE.match(line):
+            gotfirst = True
+    for line in fp:
+        if not DELIM_LINE_RE.match(line):
+            yield line
+        else:
+            return
+
+
 def parse_all(fp):
-    return functools.reduce(lambda x, y: x + parse_line(y) if y.strip() else [], fp, [])
+    return functools.reduce(
+        lambda x, y: x + parse_line(y) if y.strip() else [], inner_lines(fp), []
+    )
 
 
 def find_best(data, n):
@@ -44,7 +69,7 @@ def find_best(data, n):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Find best lines to attack from coverage output"
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "-n", type=int, default=1, help="Find the best 'n' diffs (default: 1)"
@@ -52,13 +77,15 @@ def main():
     parser.add_argument(
         "INPUT_FILE",
         type=argparse.FileType("r"),
-        help="File with coverage data to analyze",
+        help="File with coverage data to analyze, defaults to stdin",
+        nargs="?",
     )
     args = parser.parse_args()
     if args.n < 1:
         parser.error("can't have -n less than 1")
 
-    data = parse_all(args.INPUT_FILE)
+    fp = args.INPUT_FILE if args.INPUT_FILE else sys.stdin
+    data = parse_all(fp)
     print(f"Best line range{'' if args.n == 1 else 's'}:")
     for fname, start, end in find_best(data, args.n):
         print(f"  {fname}: {start} - {end}")
