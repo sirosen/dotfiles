@@ -1,21 +1,9 @@
-# platform-specific binaries (not scripts)
-# which I want in this dir but not in git
-shfmt
-
 # included git repos and such
 testssl.sh
 gti
 
-# managed venvs for python tools installed by the managed venvs script
-.managed-venvs
-pylint
-pipx
-black
-isort
-flake8
-globus-search
-
-# managed npm tools
+## tools & dirs downloaded by the personal tool updater script ##
+# npm
 npm-packages
 openapi3-generator
 stylelint
@@ -23,3 +11,8 @@ jsonlint
 lint-openapi
 spectral
 lighthouse
+# platform binaries
+shfmt
+shfmt-*
+shellcheck
+shellcheck-*

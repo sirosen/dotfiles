@@ -1,0 +1,82 @@
+#!/bin/bash
+set -e
+cd "$(dirname "$0")"
+
+SHFMT_VERSION="3.2.2"
+SHELLCHECK_VERSION="0.7.1"
+
+print_usage () {
+  echo "USAGE: update-personal-bin [-h|--help] [--npm] [--binary] [--all]"
+}
+
+# handle args
+do_npm=0
+do_binary=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    "-h"|"--help")
+      print_usage
+      exit 0
+      ;;
+    "--npm")
+      do_npm=1
+      ;;
+    "--binary")
+      do_binary=1
+      ;;
+    "--all")
+      do_npm=1
+      do_binary=1
+      ;;
+    *)
+      print_usage
+      exit 2
+      ;;
+  esac
+  shift 1
+done
+if [ "$do_binary" -eq 0 ] && [ "$do_npm" -eq 0 ]; then
+  print_usage
+  exit 2
+fi
+
+
+npm_binlink () {
+  if [ ! -f "$1" ]; then
+    ln -s "npm-packages/bin/$1" "$1"
+  fi
+}
+
+
+if [ $do_npm -eq 1 ]; then
+  npm install -g \
+    openapi3-generator \
+    stylelint stylelint-config-standard \
+    jsonlint \
+    ibm-openapi-validator \
+    @stoplight/spectral \
+    lighthouse
+
+  for x in openapi3-generator stylelint jsonlint lint-openapi spectral lighthouse; do
+    npm_binlink "$x"
+  done
+fi
+
+if [ $do_binary -eq 1 ]; then
+  if [ ! -f "shfmt-$SHFMT_VERSION" ]; then
+    curl -LsSf -m 60 -o "shfmt-$SHFMT_VERSION" \
+      https://github.com/mvdan/sh/releases/download/v3.2.2/shfmt_v3.2.2_linux_amd64
+    chmod +x "shfmt-$SHFMT_VERSION"
+  fi
+  cp shfmt-$SHFMT_VERSION shfmt
+
+  if [ ! -f "shellcheck-$SHELLCHECK_VERSION" ]; then
+    curl -LsSf -m 60 -o "shellcheck-v$SHELLCHECK_VERSION.tar.xz" \
+      "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz"
+    tar -xf "shellcheck-v$SHELLCHECK_VERSION.tar.xz"
+    mv "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" "shellcheck-$SHELLCHECK_VERSION"
+    rm "shellcheck-v$SHELLCHECK_VERSION.tar.xz"
+    rm -r "shellcheck-v${SHELLCHECK_VERSION}"
+  fi
+  cp "shellcheck-$SHELLCHECK_VERSION" shellcheck
+fi
