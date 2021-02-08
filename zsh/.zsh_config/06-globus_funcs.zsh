@@ -36,7 +36,6 @@ globus-mfa-users-bad () {
 
 _switch_aws_account() {
   unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SECURITY_TOKEN
-  set-tmux-title "$1-AWS"
   export AWS_PROFILE="$1" # EC2SSH_PUBLIC_IP=0
   unset EC2SSH_PUBLIC_IP
   export EC2SSH_AUTODETECT=1

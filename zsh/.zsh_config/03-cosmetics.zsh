@@ -66,8 +66,18 @@ precmd () {
         PROMPT="$(_color_text "ᚠ ${current_branch} " --bold --fg bg1 --bg brightaqua)${PROMPT}"
     fi
 
-    if [ -n "$VIRTUAL_ENV" ]; then
-        PROMPT="$(_color_text "virtualenv=$VIRTUAL_ENV" --fg grey --bg bg0_h)"$'\n'"${PROMPT}"
+    if [ -n "$VIRTUAL_ENV" ] || [ -n "$AWS_PROFILE" ]; then
+        local pre_line=""
+        local sep="|"
+        sep="$(_color_text "$sep" --fg bg4 --bg fg4)"
+        if [ -n "$AWS_PROFILE" ]; then
+          pre_line="$(_color_text " aws:$AWS_PROFILE " --fg bg0 --bg fg4 --bold)"
+        fi
+        if [ -n "$VIRTUAL_ENV" ]; then
+          if [ -n "$pre_line" ]; then pre_line="$pre_line$sep"; fi
+          pre_line="${pre_line}$(_color_text " venv:$VIRTUAL_ENV " --fg bg0 --bg fg4)"
+        fi
+        PROMPT="$pre_line"$'\n'"${PROMPT}"
     fi
 
     PROMPT="${ecodeprompt}${PROMPT} \$ "
