@@ -17,8 +17,6 @@ PYENV_SHIMS="$HOME/.pyenv/shims"
 PATH="$PATH:$PYENV_SHIMS:$PYENV_ROOT/bin"
 # add poetry
 PATH="$PATH:$HOME/.poetry/bin"
-# add globus-cli
-PATH="$PATH:$HOME/.venv-globus-cli/bin"
 
 export PYENV_ROOT
 export PATH

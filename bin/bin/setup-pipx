@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+cd "$(dirname "$0")"
+
+if [ ! -f ~/.local/bin/pipx ]; then
+  pip install --user pipx
+fi
+
+for tool in \
+  'pre-commit' \
+  'pylint' 'black' 'isort' 'flake8[flake8-bugbear]' \
+  'coverage[toml]' \
+  'globus-search-cli' 'globus-cli'\
+; do
+  pipx install "$tool"
+done
