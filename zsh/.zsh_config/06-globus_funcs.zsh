@@ -42,7 +42,7 @@ _switch_aws_account() {
 
   case "$AWS_PROFILE" in
     dev)
-      unset AWS_PROFILE
+      export AWS_PROFILE=dev
       # export EC2SSH_PUBLIC_IP=1
       ;;
     ops)

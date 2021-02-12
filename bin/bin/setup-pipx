@@ -8,7 +8,7 @@ if [ ! -f ~/.local/bin/pipx ]; then
 fi
 
 for tool in \
-  'pre-commit' \
+  'pre-commit' 'tox' \
   'pylint' 'black' 'isort' 'flake8[flake8-bugbear]' \
   'coverage[toml]' \
   'globus-search-cli' 'globus-cli'\

@@ -33,6 +33,19 @@ _color_text () {
   echo -n "%}"
 }
 
+_prelineadd () {
+  local preline="$1"
+  local add="$2"
+  shift 2
+
+  local sep="|"
+  sep="$(_color_text "$sep" --fg fg4 --bg bg1)"
+  [ -n "$preline" ] && preline="$preline$sep"
+
+  preline="${preline}$(_color_text " $add " --bg bg1 "$@")"
+  echo "$preline"
+}
+
 # part of the prompt is exit code when nonzero
 exit_code_prompt() {
   local rc=$?
@@ -68,14 +81,14 @@ precmd () {
 
     if [ -n "$VIRTUAL_ENV" ] || [ -n "$AWS_PROFILE" ]; then
         local pre_line=""
-        local sep="|"
-        sep="$(_color_text "$sep" --fg bg4 --bg fg4)"
         if [ -n "$AWS_PROFILE" ]; then
-          pre_line="$(_color_text " aws:$AWS_PROFILE " --fg bg0 --bg fg4 --bold)"
+          pre_line="$(_prelineadd "$pre_line" "aws:$AWS_PROFILE" --fg orange --bold)"
         fi
         if [ -n "$VIRTUAL_ENV" ]; then
-          if [ -n "$pre_line" ]; then pre_line="$pre_line$sep"; fi
-          pre_line="${pre_line}$(_color_text " venv:$VIRTUAL_ENV " --fg bg0 --bg fg4)"
+          pre_line="$(_prelineadd "$pre_line" "venv:$VIRTUAL_ENV" --fg yellow)"
+        fi
+        if [ -n "$GLOBUS_SDK_ENVIRONMENT" ]; then
+          pre_line="$(_prelineadd "$pre_line" "sdkenv:$GLOBUS_SDK_ENVIRONMENT" --fg aqua --bold)"
         fi
         PROMPT="$pre_line"$'\n'"${PROMPT}"
     fi
