@@ -92,31 +92,70 @@ let g:airline_symbols.whitespace = 'Ξ'
 hi ALEStyleError guibg=yellow
 
 
-function ApplyPythonSettings ()
-  " search current dir for .__py_autoformat file which indicates that this project is
-  " using autoformatting
-  " - expand expands to the dir of the current file
-  " - '.' is vimscript string concat
-  " - paths ending in ';' get recursive upward search
-  " - findfile searches for a file name against a path
-  " - empty checks if something is empty (duh)
-  " - ! to negate -- looking for a match
-  if !empty(findfile("\.__py_autoformat", expand('%:p:h') . ";"))
-    let g:ale_fix_on_save = 1
-    set textwidth=88
-  endif
-  " disable isort fixer if the project doesn't use it
-  " as many projects are starting to use 'black', but not 'isort', this is useful
-  if !empty(findfile("\.__disable_isort", expand('%:p:h') . ";"))
-    let b:ale_fixers = {'python': ['black']}
-  endif
-  " python folding
-  set foldnestmax=1 foldlevel=1 foldmethod=indent
+function DisablePyIsort ()
+  let b:ale_fixers = {'python': ['black']}
 endfunction
+
+function EnableAutoformat ()
+  let b:ale_fix_on_save = 1
+  set textwidth=88
+endfunction
+
+
+" allow project-specific 'vimrc'-like config, but without dangerous exrc usage
+" inspired a little by vim-IniParser, but reduced to only essentials
+function StripWhitespace (string)
+  let l:whitespace = " \t\r\n"
+  if strlen(a:string) == 0
+      return ''
+  endif
+  let l:startgood = 0
+  let l:endgood = strlen(a:string)
+  for i in range(strlen(a:string))
+    let l:startgood = i
+    if match(l:whitespace, a:string[i]) == -1
+      break
+    endif
+  endfor
+  for i in range(strlen(a:string) - 1, 0, -1)
+    let l:endgood = i
+    if match(l:whitespace, a:string[i]) == -1
+      break
+    endif
+  endfor
+  return strpart(a:string, l:startgood, l:endgood - l:startgood + 1)
+endfunction
+
+function LoadMyVimConfig ()
+  let l:confpath = findfile("\.myvim-config", expand('%:p:h') . ";")
+  if !empty(l:confpath) && filereadable(l:confpath)
+    let l:confdata = readfile(l:confpath)
+    for line in l:confdata
+        let line = StripWhitespace(line)
+        let l:linelen = strlen(line)
+        if l:linelen != 0
+          let l:eq_index = match(line, "=")
+          let l:var = StripWhitespace(strpart(line, 0, l:eq_index))
+          let l:val = StripWhitespace(strpart(line, l:eq_index + 1, l:linelen - l:eq_index - 1))
+
+          if l:var == "autoformat"
+            if l:val == "on"
+              call EnableAutoformat()
+            endif
+          endif
+          if l:var == "py_isort"
+            if l:val == "off"
+              call DisablePyIsort()
+            endif
+          endif
+        endif
+    endfor
+  endif
+endfunction
+
 
 augroup ag_filetype
   au!
-  autocmd FileType python :call ApplyPythonSettings()
   autocmd FileType diff  set textwidth=0
   autocmd FileType ruby,json,yml,yaml,bash,sh setl sw=2 sts=2
   autocmd BufNewFile,BufRead *.onc set filetype=json
@@ -130,6 +169,11 @@ match TrailingWhitespace /\s\+$/
 augroup ag_colorscheme
   au!
   autocmd ColorScheme * highlight TrailingWhitespace ctermbg=red guibg=red
+augroup END
+
+augroup ag_bufnew
+  au!
+  autocmd BufNewFile,BufRead * :call LoadMyVimConfig()
 augroup END
 
 
