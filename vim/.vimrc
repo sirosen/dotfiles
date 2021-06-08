@@ -98,7 +98,9 @@ endfunction
 
 function EnableAutoformat ()
   let b:ale_fix_on_save = 1
-  set textwidth=88
+  if &filetype == 'python'
+    set textwidth=88
+  endif
 endfunction
 
 

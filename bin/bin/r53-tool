@@ -121,12 +121,23 @@ def _do_listing(client, hosted_zones):
     for domain in domains:
         print("# == {} ==".format(domain))
         for record in _all_records(client, hosted_zones[domain]):
-            for value in record["ResourceRecords"]:
-                print(
-                    "{} {} {} {}".format(
-                        record["Name"], record["Type"], value["Value"], record["TTL"]
+            if "ResourceRecords" not in record:
+                if record["Type"] == "A" and "AliasTarget" in record:
+                    print(
+                        f"{record['Name']} Alias(A)",
+                        record["AliasTarget"]["DNSName"],
+                        f"Zone={record['AliasTarget']['HostedZoneId']}",
+                        "EvaluateTargetHealth="
+                        f"{record['AliasTarget']['EvaluateTargetHealth']}",
                     )
-                )
+                else:
+                    print(f"raw record: {record}")
+            else:
+                for value in record["ResourceRecords"]:
+                    print(
+                        f"{record['Name']} {record['Type']} "
+                        f"{value['Value']} {record['TTL']}"
+                    )
     sys.exit(0)
 
 

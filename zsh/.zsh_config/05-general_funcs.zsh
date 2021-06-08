@@ -12,12 +12,6 @@ forget-known-host () {
     ssh-keygen -f ~/.ssh/known_hosts -R "$1"
 }
 
-cwd-fileserver () {
-  local port=8000
-  [ $# -gt 0 ] && port="$1"
-  python3 -m http.server "$port" --bind localhost
-}
-
 show-ansi-colors () {
   echo -e '\\e[39m...\\e[0m: '"\e[39mDefault\e[0m"
   echo -e '\\e[30m...\\e[0m: '"\e[30mBlack\e[0m"

@@ -41,13 +41,6 @@ if [ "$do_binary" -eq 0 ] && [ "$do_npm" -eq 0 ]; then
 fi
 
 
-npm_binlink () {
-  if [ ! -f "$1" ]; then
-    ln -s "npm-packages/bin/$1" "$1"
-  fi
-}
-
-
 if [ $do_npm -eq 1 ]; then
   npm install -g \
     openapi3-generator \
@@ -55,10 +48,13 @@ if [ $do_npm -eq 1 ]; then
     jsonlint \
     ibm-openapi-validator \
     @stoplight/spectral \
-    lighthouse
+    lighthouse \
+    gulp
 
-  for x in openapi3-generator stylelint jsonlint lint-openapi spectral lighthouse; do
-    npm_binlink "$x"
+  for x in gulp openapi3-generator stylelint jsonlint lint-openapi spectral lighthouse; do
+    if [ ! -f "$x" ]; then
+      ln -s "npm-packages/bin/$x" "$x"
+    fi
   done
 fi
 

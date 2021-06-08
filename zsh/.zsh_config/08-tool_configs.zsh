@@ -12,6 +12,7 @@ export SSH_AUTH_SOCK=~/.ssh/ssh-agent.$(ec2metadata --instance-id).sock
 
 # explicit default to autodetect
 export EC2SSH_AUTODETECT=1
+export EC2SSH_DISABLE_KNOWN_HOSTS=1
 
 # endpoint IDs
 export GO_EP1='ddb59aef-6d04-11e5-ba46-22000b92c6ec'

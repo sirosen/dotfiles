@@ -11,6 +11,7 @@ jsonlint
 lint-openapi
 spectral
 lighthouse
+gulp
 # platform binaries
 shfmt
 shfmt-*

@@ -16,7 +16,8 @@
       git fetch $remote pull/$1/head ; \
       git checkout FETCH_HEAD ; \
     }; f"
+    sc = "!./etc/modify-adoc.py CHANGELOG.adoc; git add CHANGELOG.adoc; git commit -v"
 [init]
 	defaultBranch = main
 [blame]
-	ignoreRevsFile = .git-blame-ignore-revs
+#	ignoreRevsFile = .git-blame-ignore-revs

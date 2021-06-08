@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+
+import http.server
+import os
+import socketserver
+from http import HTTPStatus
+
+PORT = 8000
+
+
+class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
+    def send_response(self, code, message=None):
+        super().send_response(code, message=message)
+        # this is a patch to work around a minor bug in the
+        # SimpleHTTPRequestHandler, in which no content-length is sent and
+        # certain clients wait indefinitely
+        # for full details: https://bugs.python.org/issue43972
+        if code == HTTPStatus.MOVED_PERMANENTLY:
+            self.send_header("Content-Length", "0")
+
+
+class CustomServer(socketserver.ForkingMixIn, socketserver.TCPServer):
+    allow_reuse_address = True  # shutdown and running again should be smooth
+
+
+if __name__ == "__main__":
+    print(f"serving output at http://localhost:{PORT}\nuse Ctrl-C to close")
+    with CustomServer(("", PORT), CustomRequestHandler) as httpd:
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\nKeyboard interrupt received, exiting.")
+
+# vi: ft=python
