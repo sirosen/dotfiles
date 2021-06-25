@@ -1,0 +1,37 @@
+# list available commands or show command help
+h(elp)
+help <command>
+
+# print expression, show a variable named 'foo'
+p <expr>
+foo
+# show a variable named 'help' (matches a command)
+!help
+
+# execute current line, stop at first opportunity
+s(tep)
+# continue until next line in current function is reached
+n(ext)
+# continue until function returns
+r(eturn)
+# continue until next breakpoint is reached
+c(ontinue)
+
+# print trace to current stack frame or move up/down frames
+w(here)
+u(p)
+d(own)
+
+# set breakpoints with b(reak) at a line or at function
+b 122
+b foo.py:34
+b my_func
+
+# temp breakpoint (cleared on first hit)
+tbreak foo.py:81
+
+# enable, disable, and clear breakpoints with cl(ear), enable, disable
+# followed by breakpoint number
+disable 1
+enable 1
+clear 2

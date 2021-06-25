@@ -4,6 +4,7 @@ cd "$(dirname "$0")"
 
 SHFMT_VERSION="3.2.2"
 SHELLCHECK_VERSION="0.7.1"
+CHEAT_VERSION='4.2.2'
 
 print_usage () {
   echo "USAGE: update-personal-bin [-h|--help] [--npm] [--binary] [--all]"
@@ -64,7 +65,17 @@ if [ $do_binary -eq 1 ]; then
       https://github.com/mvdan/sh/releases/download/v3.2.2/shfmt_v3.2.2_linux_amd64
     chmod +x "shfmt-$SHFMT_VERSION"
   fi
-  cp shfmt-$SHFMT_VERSION shfmt
+  cp "shfmt-$SHFMT_VERSION" shfmt
+
+  if [ ! -f "cheat-$CHEAT_VERSION" ]; then
+    curl -LsSf -m 60 -o "cheat.gz" \
+      https://github.com/cheat/cheat/releases/download/4.2.2/cheat-linux-amd64.gz
+    gunzip -c cheat.gz > "cheat-$CHEAT_VERSION"
+    rm cheat.gz
+    chmod +x "cheat-$CHEAT_VERSION"
+  fi
+  cp "cheat-$CHEAT_VERSION" cheat
+  chmod +x cheat
 
   if [ ! -f "shellcheck-$SHELLCHECK_VERSION" ]; then
     curl -LsSf -m 60 -o "shellcheck-v$SHELLCHECK_VERSION.tar.xz" \

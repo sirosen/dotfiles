@@ -17,3 +17,5 @@ shfmt
 shfmt-*
 shellcheck
 shellcheck-*
+cheat
+cheat-*

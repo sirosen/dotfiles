@@ -14,3 +14,4 @@ cd into this directory (stow automatically targets the parent dir by default).
   stow tmux
   stow git
   stow bin
+  stow cheatsheets

@@ -52,6 +52,7 @@ _switch_aws_account() {
       ;;
   esac
 }
+setprofile-funcx () { _switch_aws_account funcx; }
 setprofile-nexus () { _switch_aws_account nexus; }
 setprofile-ops () { _switch_aws_account ops; }
 setprofile-transfer () { _switch_aws_account transfer; }
