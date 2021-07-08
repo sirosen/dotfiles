@@ -19,3 +19,4 @@ shellcheck
 shellcheck-*
 cheat
 cheat-*
+eksctl

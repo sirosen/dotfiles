@@ -1,0 +1,3 @@
+#!/bin/bash
+# shim to exec as microk8s
+exec microk8s kubectl "$@"
