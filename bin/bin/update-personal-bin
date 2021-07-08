@@ -60,6 +60,13 @@ if [ $do_npm -eq 1 ]; then
 fi
 
 if [ $do_binary -eq 1 ]; then
+  if [ ! -f "eksctl" ]; then
+    curl -LsSf -m 60 \
+      "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | \
+      tar -xz
+    chmod +x eksctl
+  fi
+
   if [ ! -f "shfmt-$SHFMT_VERSION" ]; then
     curl -LsSf -m 60 -o "shfmt-$SHFMT_VERSION" \
       https://github.com/mvdan/sh/releases/download/v3.2.2/shfmt_v3.2.2_linux_amd64
