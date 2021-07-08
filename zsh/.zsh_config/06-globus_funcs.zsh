@@ -25,14 +25,6 @@ globus-mfa-users () {
   mfa-to-profile mfa-activated "$mfafile"
 }
 
-globus-mfa-users-bad () {
-  local mfafile="$HOME/.globus_mfa_users"
-  AWS_PROFILE="users" \
-    ADMIN_AWS_MFA_SN="arn:aws:iam::280831789029:role/globus_admin" \
-    mfa-login "$mfafile" --mmin 540 || return $?
-  mfa-to-profile mfa-activated "$mfafile"
-}
-
 
 _switch_aws_account() {
   unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SECURITY_TOKEN

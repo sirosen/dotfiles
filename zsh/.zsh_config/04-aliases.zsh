@@ -21,3 +21,8 @@ alias grbi='git rebase --interactive'
 compdef _git grbi=git-rebase
 alias gtree='git log --graph --decorate --all'
 compdef _git gtree=git-log
+
+# microk8s aliases
+# prefer shims
+# alias kubectl='microk8s kubectl'
+# alias helm='microk8s helm3'
