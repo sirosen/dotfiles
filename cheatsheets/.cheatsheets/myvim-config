@@ -1,0 +1,10 @@
+#
+# for my personal ini-like per-project vim config
+#
+
+# write personal vim config to .myvim-config in a dir
+# set autoformatting (fix-on-save) without isort:
+echo -e "autoformat=on\npy_isort=off" > .myvim-config
+
+# set autoformatting to off, explicitly
+echo "autoformat=off" > .myvim-config

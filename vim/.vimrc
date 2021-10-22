@@ -80,6 +80,8 @@ let g:ale_fixers = {'*': [], 'python': ['isort', 'black'], 'json': ['jq'], 'rust
 "   https://github.com/dense-analysis/ale/issues/2885
 let g:ale_python_isort_options = '--settings-path .'
 let g:ale_linters = {'*': [], 'python': ['flake8'], 'json': ['jsonlint'], 'rust': ['analyzer']}
+
+" airline config, including  use of ALE
 let g:airline#extensions#ale#enabled = 1
 let g:airline_left_sep = '»'
 let g:airline_right_sep = '«'
@@ -98,6 +100,10 @@ endfunction
 
 function EnableAutoformat ()
   let b:ale_fix_on_save = 1
+endfunction
+
+function DisableAutoformat ()
+  let b:ale_fixers = {}
 endfunction
 
 
@@ -140,6 +146,9 @@ function LoadMyVimConfig ()
           if l:var == "autoformat"
             if l:val == "on"
               call EnableAutoformat()
+            endif
+            if l:val == "off"
+              call DisableAutoformat()
             endif
           endif
           if l:var == "py_isort"
