@@ -98,9 +98,6 @@ endfunction
 
 function EnableAutoformat ()
   let b:ale_fix_on_save = 1
-  if &filetype == 'python'
-    set textwidth=88
-  endif
 endfunction
 
 
@@ -158,8 +155,9 @@ endfunction
 
 augroup ag_filetype
   au!
-  autocmd FileType diff  set textwidth=0
-  autocmd FileType ruby,json,yml,yaml,bash,sh setl sw=2 sts=2
+  autocmd FileType diff set tw=0
+  autocmd FileType ruby,json,yml,yaml,bash,sh setl sw=2 sts=2 tw=0
+  autocmd FileType python setl tw=0
   autocmd BufNewFile,BufRead *.onc set filetype=json
   autocmd BufNewFile,BufRead *.painless set filetype=groovy
   autocmd FileType gitcommit set textwidth=70
