@@ -1,0 +1,5 @@
+# my bookmarklets, as a cheatsheet
+
+# add a <details> panel in github comments
+# done by writing a function that operates on the active element and inserting text
+javascript:(function(x){x.value=x.value.slice(0,x.selectionStart)+"<details><summary></summary>\n\n</details>"+x.value.slice(x.selectionEnd);})(document.activeElement);
