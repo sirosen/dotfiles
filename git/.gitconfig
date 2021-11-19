@@ -7,7 +7,7 @@
 [pull]
 	ff = only
 [core]
-	excludesfile = /mnt/ebs/home/sirosen/.gitignore_global
+	excludesfile = /home/sirosen/.gitignore_global
 [alias]
     tree = log --graph --decorate --all
     pr-checkout = "!f () { \
