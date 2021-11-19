@@ -1,7 +1,7 @@
 # random
 
 set-tmux-title () {
-  printf '\033k'"$1"'\033\\'
+  tmux rename-window "$1"
 }
 
 venv-activate() {
