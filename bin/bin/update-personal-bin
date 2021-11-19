@@ -48,7 +48,7 @@ if [ $do_npm -eq 1 ]; then
     stylelint stylelint-config-standard \
     jsonlint \
     ibm-openapi-validator \
-    @stoplight/spectral \
+    @stoplight/spectral-cli \
     lighthouse \
     gulp
 
