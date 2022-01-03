@@ -1,0 +1,15 @@
+## EKS and kubectl ##
+
+# get EKS cluster added to kube config as a context
+aws eks update-kubeconfig --name funcx-dev
+
+# set kube config contexts
+kubectl config use-context 'arn:aws:eks:us-east-1:512084481048:cluster/funcx-dev'
+kubectl config use-context 'arn:aws:eks:us-east-1:512084481048:cluster/funcx-prod'
+kubectl config use-context microk8s
+
+## microk8s and docker ##
+
+# pull an image into the microk8s registry
+docker save funcx_web_service > funcx_web_service.tar
+microk8s ctr image import funcx_web_service.tar
