@@ -1,6 +1,8 @@
 = dotfiles
 
-A freshly built dotfiles repo using GNU stow
+A dotfiles repo using GNU stow
+
+Always changing, sometimes improving
 
 == Usage
 

@@ -8,8 +8,18 @@ kubectl config use-context 'arn:aws:eks:us-east-1:512084481048:cluster/funcx-dev
 kubectl config use-context 'arn:aws:eks:us-east-1:512084481048:cluster/funcx-prod'
 kubectl config use-context microk8s
 
+# get helm deployment values
+helm get values funcx > deployed_values/dev.yaml
+
 ## microk8s and docker ##
 
 # pull an image into the microk8s registry
 docker save funcx_web_service > funcx_web_service.tar
 microk8s ctr image import funcx_web_service.tar
+
+## releases ##
+
+# see image builds on dockerhub
+https://hub.docker.com/r/funcx/forwarder/tags
+https://hub.docker.com/r/funcx/web-service/tags
+https://hub.docker.com/r/funcx/funcx-websocket-service/tags

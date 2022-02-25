@@ -17,6 +17,11 @@
       git checkout FETCH_HEAD ; \
     }; f"
     sc = "!./etc/modify-adoc.py CHANGELOG.adoc; git add CHANGELOG.adoc; git commit -v"
+    logdiff = "!f () { \
+      base=\"$1\"; \
+      [ -n \"$base\" ] || base=main; \
+      git diff HEAD $(git merge-base HEAD \"$base\") > logdiff.diff ; \
+    }; f"
 [init]
 	defaultBranch = main
 [blame]
