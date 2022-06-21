@@ -5,6 +5,7 @@ cd "$(dirname "$0")"
 SHFMT_VERSION="3.2.2"
 SHELLCHECK_VERSION="0.7.1"
 CHEAT_VERSION='4.2.2'
+GH_VERSION="2.12.1"
 
 print_usage () {
   echo "USAGE: update-personal-bin [-h|--help] [--npm] [--binary] [--all]"
@@ -93,4 +94,14 @@ if [ $do_binary -eq 1 ]; then
     rm -r "shellcheck-v${SHELLCHECK_VERSION}"
   fi
   cp "shellcheck-$SHELLCHECK_VERSION" shellcheck
+
+  if [ ! -f "gh-$GH_VERSION" ]; then
+    curl -LsSf -m 60 -o "gh-v$GH_VERSION.tar.gz" \
+      "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz"
+    tar -xzf "gh-v$GH_VERSION.tar.gz"
+    mv "gh_${GH_VERSION}_linux_amd64/bin/gh" "gh-$GH_VERSION"
+    rm "gh-v$GH_VERSION.tar.gz"
+    rm -r "gh_${GH_VERSION}_linux_amd64"
+  fi
+  cp "gh-$GH_VERSION" gh
 fi
