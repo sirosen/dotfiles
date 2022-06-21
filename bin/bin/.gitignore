@@ -1,3 +1,7 @@
+# npm install generated data
+package.json
+package-lock.json
+
 # included git repos and such
 testssl.sh
 gti
@@ -20,3 +24,5 @@ shellcheck-*
 cheat
 cheat-*
 eksctl
+gh
+gh-*

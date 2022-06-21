@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+
+import argparse
+import datetime
+
+
+def to_utc(s: str, tz: datetime.tzinfo) -> str:
+    outformat = "isoformat"
+    try:
+        dt = datetime.datetime.fromisoformat(s)
+    except ValueError:
+        dt = datetime.datetime.strptime(s, "%H:%M")
+        outformat = "%H:%M"
+
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=tz)
+
+    if outformat == "isoformat":
+        return dt.isoformat()
+    return dt.astimezone(tz=datetime.timezone.utc).strftime(outformat)
+
+
+def from_utc(s: str, tz: datetime.tzinfo) -> str:
+    outformat = "isoformat"
+    try:
+        dt = datetime.datetime.fromisoformat(s)
+    except ValueError:
+        dt = datetime.datetime.strptime(s, "%H:%M")
+        outformat = "%H:%M"
+
+    if dt.tzinfo is not None:
+        raise ValueError("Cannot convert from UTC with a timezone")
+    if outformat == "isoformat":
+        return dt.astimezone(tz=tz).isoformat()
+    return dt.strftime(outformat)
+
+
+def parse_offset(o: str) -> datetime.tzinfo:
+    if o in ("EDT", "EST"):
+        return datetime.timezone(datetime.timedelta(hours=-5))
+    if o in ("CDT", "CST"):
+        return datetime.timezone(datetime.timedelta(hours=-6))
+
+    try:
+        int(o)
+        return datetime.timezone(datetime.timedelta(hours=int(o)))
+    except ValueError:
+        pass
+
+    dt = datetime.datetime.strptime(o, "%z")
+    return dt.tzinfo
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("INPUT_TIME")
+    parser.add_argument("-o", "--offset", default="-5")
+    parser.add_argument(
+        "--conversion", choices=["to_utc", "from_utc"], default="to_utc"
+    )
+    args = parser.parse_args()
+
+    tz = parse_offset(args.offset)
+    if args.conversion == "to_utc":
+        print(to_utc(args.INPUT_TIME, tz))
+    elif args.conversion == "from_utc":
+        print(from_utc(args.INPUT_TIME, tz))
+    else:
+        raise NotImplementedError(f"unknown conversion '{args.conversion}'")
+
+
+if __name__ == "__main__":
+    main()

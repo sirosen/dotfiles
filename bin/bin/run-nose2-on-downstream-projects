@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# a testing script for running right after a release to make sure everything
+# works
+# if a dir exists, skip that test (I can `rm -r` the repo dir to re-test
+# something)
+# changes may be made prior to running
+set -euo pipefail
+
+
+cd ~/projects/
+mkdir -p nose2-downstream
+cd nose2-downstream
+
+
+if [ ! -d mailman ]; then
+  git clone "https://gitlab.com/mailman/mailman/"
+  pushd mailman
+  tox
+  popd
+fi
+
+# unusual project, pinned to a very old version and minimal tests
+#
+# if [ ! -d howdoi ]; then
+#   git clone "https://github.com/gleitz/howdoi"
+#   pushd howdoi
+#   sed -i 's/nose2\=\=.*/nose2/' requirements/dev.txt
+#   python -m venv .venv
+#   # shellcheck disable=SC1091
+#   source .venv/bin/activate
+#   pip install -r requirements/dev.txt
+#   nose2
+#   deactivate
+#   popd
+# fi
+
+if [ ! -d pymanopt ]; then
+  git clone https://github.com/pymanopt/pymanopt
+  pushd pymanopt
+  python -m venv .venv
+  # shellcheck disable=SC1091
+  source .venv/bin/activate
+  pip install -r requirements/base.txt -r requirements/dev.txt
+  nose2
+  deactivate
+  popd
+fi

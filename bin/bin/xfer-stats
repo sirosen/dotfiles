@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+"""
+{
+    "new": {
+        "bytes": 1479661690483003911,
+        "files": 162192537462,
+        "time": "2022-02-28 18:54:01.767532"
+    },
+    "old": {
+        "bytes": 1479655341472561512,
+        "files": 162190726043,
+        "time": "2022-02-28 18:49:01.777089"
+    }
+}
+"""
+import datetime
+import json
+import urllib.request
+
+URL = "https://transfer.api.globus.org/v0.10/private/web_stats"
+
+
+def timedelta_seconds(data):
+    old_dt = datetime.datetime.strptime(data["old"]["time"], "%Y-%m-%d %H:%M:%S.%f")
+    new_dt = datetime.datetime.strptime(data["new"]["time"], "%Y-%m-%d %H:%M:%S.%f")
+    delta = new_dt - old_dt
+    return delta.seconds
+
+
+def bytes_per_second(data):
+    num_bytes = data["new"]["bytes"] - data["old"]["bytes"]
+    num_seconds = timedelta_seconds(data)
+    return num_bytes / num_seconds
+
+
+def main():
+    print("= Globus Transfer Stats =")
+    with urllib.request.urlopen(URL) as fp:
+        data = json.load(fp)
+    bytes_xfer = data["new"]["bytes"]
+    kb_xfer = bytes_xfer / 1024  # kilo
+    mb_xfer = kb_xfer / 1024  # mega
+    gb_xfer = mb_xfer / 1024  # giga
+    tb_xfer = gb_xfer / 1024  # tera
+    pb_xfer = tb_xfer / 1024  # peta
+    eb_xfer = pb_xfer / 1024  # exa
+    print(f"| {eb_xfer:.2f} Exabytes transferred (total)")
+    print("|")
+    print(f"| >> total = {tb_xfer:,.2f} TB")
+    bytes_per_s = bytes_per_second(data)
+    kb_per_s = bytes_per_s / 1024
+    mb_per_s = kb_per_s / 1024
+    gb_per_s = mb_per_s / 1024
+    print(f"| >> current rate = {gb_per_s:.2f} GB / second")
+    print("===")
+
+
+if __name__ == "__main__":
+    main()
