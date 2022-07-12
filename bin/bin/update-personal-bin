@@ -6,6 +6,8 @@ SHFMT_VERSION="3.2.2"
 SHELLCHECK_VERSION="0.7.1"
 CHEAT_VERSION='4.2.2'
 GH_VERSION="2.12.1"
+KUBECTL_VERSION="1.24.2"
+HELM_VERSION="3.9.0"
 
 print_usage () {
   echo "USAGE: update-personal-bin [-h|--help] [--npm] [--binary] [--all]"
@@ -104,4 +106,20 @@ if [ $do_binary -eq 1 ]; then
     rm -r "gh_${GH_VERSION}_linux_amd64"
   fi
   cp "gh-$GH_VERSION" gh
+
+  # kubectl/helm
+  if [ ! -f "kubectl-$KUBECTL_VERSION" ]; then
+    curl -LsSf -m 60 -o "kubectl-$KUBECTL_VERSION" \
+      "https://dl.k8s.io/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl"
+    chmod +x "kubectl-$KUBECTL_VERSION"
+  fi
+  if [ ! -f "helm-$HELM_VERSION" ]; then
+    curl -LsSf -m 60 -o "helm-v$HELM_VERSION.tar.gz" \
+      "https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz"
+    tar -xzf "helm-v$HELM_VERSION.tar.gz"
+    mv linux-amd64/helm "helm-$HELM_VERSION"
+    rm -r linux-amd64
+  fi
+  cp "kubectl-$KUBECTL_VERSION" kubectl
+  cp "helm-$HELM_VERSION" helm
 fi

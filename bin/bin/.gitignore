@@ -26,3 +26,7 @@ cheat-*
 eksctl
 gh
 gh-*
+kubectl
+kubectl-*
+helm
+helm-*
