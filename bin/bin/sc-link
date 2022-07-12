@@ -2,19 +2,19 @@
 
 set -eo pipefail
 
-if [ -f ~/.clubhouse-token ]; then
-  CLUBHOUSE_API_TOKEN="$(cat ~/.clubhouse-token)"
+if [ -f ~/.shortcut-token ]; then
+  SHORTCUT_API_TOKEN="$(cat ~/.shortcut-token)"
 fi
 
 _get_story () {
   curl -sSf -X GET \
     -H "Content-Type: application/json" \
-    -H "Clubhouse-Token: $CLUBHOUSE_API_TOKEN" \
-    -L "https://api.clubhouse.io/api/v3/stories/${1}"
+    -H "Shortcut-Token: $SHORTCUT_API_TOKEN" \
+    -L "https://api.app.shortcut.com/api/v3/stories/${1}"
 }
 
 story_json="$(_get_story "$1")"
 name="$(jq -r '.name' <<<"$story_json")"
 link="$(jq -r '.app_url' <<<"$story_json")"
 
-echo "[[ch$1] $name]($link)"
+echo "[[sc-$1] $name]($link)"
