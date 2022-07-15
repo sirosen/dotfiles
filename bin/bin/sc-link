@@ -13,8 +13,15 @@ _get_story () {
     -L "https://api.app.shortcut.com/api/v3/stories/${1}"
 }
 
-story_json="$(_get_story "$1")"
+if [ "$1" = "--branch" ]; then
+  story_num="$(git branch --show-current | rev | cut -d'-' -f1 | rev)"
+else
+  story_num="$1"
+fi
+
+
+story_json="$(_get_story "$story_num")"
 name="$(jq -r '.name' <<<"$story_json")"
 link="$(jq -r '.app_url' <<<"$story_json")"
 
-echo "[[sc-$1] $name]($link)"
+echo "[[sc-$story_num] $name]($link)"
