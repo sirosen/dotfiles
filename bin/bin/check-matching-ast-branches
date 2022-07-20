@@ -112,10 +112,16 @@ class FindEquivalentBranchesVisitor(ast.NodeVisitor):
                 self.generic_visit(subnode)
 
 
-def check_file(filename):
+def check_file(filename: str, ignore_invalid: bool = False):
+    try:
+        with open(filename) as fp:
+            tree = ast.parse(fp.read(), filename=filename)
+    except SyntaxError:
+        if ignore_invalid:
+            return
+        raise
+
     visitor = FindEquivalentBranchesVisitor()
-    with open(filename) as fp:
-        tree = ast.parse(fp.read(), filename=filename)
     visitor.visit(tree)
     if visitor.found_interesting_branch_loc:
         for x in visitor.found_interesting_branch_loc:
@@ -127,15 +133,24 @@ def main():
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("files", nargs="*", help="default: all python files")
+    parser.add_argument(
+        "--ignore-invalid-python",
+        default=False,
+        action="store_true",
+        help="Ignore files which cannot parse",
+    )
     args = parser.parse_args()
 
     failures = []
     for filename in all_py_filenames(args.files):
-        failures.extend(check_file(filename))
+        failures.extend(check_file(filename, args.ignore_invalid_python))
 
     if failures:
+        cwd = os.getcwd()
         print("Found matching AST branches:")
         for fname, lineno in failures:
+            if fname.startswith(cwd):
+                fname = fname[len(cwd) + 1:]
             print(f"{fname}:{lineno}")
         sys.exit(1)
     print("ok")
