@@ -7,6 +7,8 @@ testssl.sh
 gti
 
 ## tools & dirs downloaded by the personal tool updater script ##
+# python built venvs
+.venv-*
 # npm
 npm-packages
 openapi3-generator

@@ -1,0 +1,61 @@
+#!/home/sirosen/bin/.venv-libcst/bin/python
+import argparse
+import glob
+import os
+import sys
+
+import libcst
+
+
+def all_py_filenames(files):
+    if not files:
+        yield from glob.glob(os.path.join(os.getcwd(), "**/*.py"), recursive=True)
+    else:
+        yield from files
+
+
+class AdjacentStringCollector(libcst.CSTVisitor):
+    METADATA_DEPENDENCIES = (libcst.metadata.PositionProvider,)
+
+    def __init__(self):
+        self.bad_linenos: set[int] = set()
+
+    def visit_ConcatenatedString(self, node: libcst.ConcatenatedString) -> None:
+        lpos = self.get_metadata(libcst.metadata.PositionProvider, node.left).start
+        rpos = self.get_metadata(libcst.metadata.PositionProvider, node.right).start
+        if lpos.line == rpos.line:
+            self.bad_linenos.add(lpos.line)
+
+
+def check_file(filename) -> bool:
+    visitor = AdjacentStringCollector()
+    with open(filename) as fp:
+        tree = libcst.parse_module(fp.read())
+    wrapper = libcst.MetadataWrapper(tree)
+    wrapper.visit(visitor)
+    bad_lines = sorted(visitor.bad_linenos)
+    if bad_lines:
+        for lineno in bad_lines:
+            print(f"{filename}:{lineno}: unnecessary string concat")
+        return False
+    return True
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("files", nargs="*", help="default: all python files")
+    args = parser.parse_args()
+
+    success = True
+    for filename in all_py_filenames(args.files):
+        success = check_file(filename) and success
+
+    if not success:
+        sys.exit(1)
+    print("ok")
+
+
+if __name__ == "__main__":
+    main()

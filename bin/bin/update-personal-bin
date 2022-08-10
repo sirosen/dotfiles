@@ -10,11 +10,12 @@ KUBECTL_VERSION="1.24.2"
 HELM_VERSION="3.9.0"
 
 print_usage () {
-  echo "USAGE: update-personal-bin [-h|--help] [--npm] [--binary] [--all]"
+  echo "USAGE: update-personal-bin [-h|--help] [--npm] [--python] [--binary] [--all]"
 }
 
 # handle args
 do_npm=0
+do_python=0
 do_binary=0
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -24,6 +25,9 @@ while [ $# -gt 0 ]; do
       ;;
     "--npm")
       do_npm=1
+      ;;
+    "--python")
+      do_python=1
       ;;
     "--binary")
       do_binary=1
@@ -39,7 +43,7 @@ while [ $# -gt 0 ]; do
   esac
   shift 1
 done
-if [ "$do_binary" -eq 0 ] && [ "$do_npm" -eq 0 ]; then
+if [ "$do_npm" -eq 0 ] && [ "$do_python" -eq 0 ] && [ "$do_binary" -eq 0 ]; then
   print_usage
   exit 2
 fi
@@ -60,6 +64,15 @@ if [ $do_npm -eq 1 ]; then
       ln -s "npm-packages/bin/$x" "$x"
     fi
   done
+fi
+
+if [ $do_python -eq 1 ]; then
+  echo "ensure .venv-libcst is up to date"
+  if [ ! -d .venv-libcst ]; then
+    python -m venv .venv-libcst
+  fi
+  .venv-libcst/bin/pip install -U libcst
+  echo ".venv-libcst done"
 fi
 
 if [ $do_binary -eq 1 ]; then
