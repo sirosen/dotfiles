@@ -6,6 +6,7 @@ SHFMT_VERSION="3.2.2"
 SHELLCHECK_VERSION="0.7.1"
 CHEAT_VERSION='4.2.2'
 GH_VERSION="2.12.1"
+MILLER_VERSION="6.3.0"
 KUBECTL_VERSION="1.24.2"
 HELM_VERSION="3.9.0"
 
@@ -76,6 +77,14 @@ if [ $do_python -eq 1 ]; then
 fi
 
 if [ $do_binary -eq 1 ]; then
+  if [ ! -f "mlr" ]; then
+    curl -LsSf -m 60 \
+      "https://github.com/johnkerl/miller/releases/download/v${MILLER_VERSION}/miller-${MILLER_VERSION}-linux-amd64.tar.gz" | \
+      tar -xz
+    mv "miller-${MILLER_VERSION}-linux-amd64/mlr" .
+    rm -r "miller-${MILLER_VERSION}-linux-amd64"
+  fi
+
   if [ ! -f "eksctl" ]; then
     curl -LsSf -m 60 \
       "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | \
