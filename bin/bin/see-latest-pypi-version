@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+import argparse
+import json
+import urllib.request
+
+
+def get_pkg_latest(name: str) -> str:
+    with urllib.request.urlopen(f"https://pypi.python.org/pypi/{name}/json") as conn:
+        version_data = json.load(conn)
+    return str(version_data["info"]["version"])
+
+
+def show_package_version(pkg: str):
+    version = get_pkg_latest(pkg)
+
+    print(f"the latest version of '{pkg}' is '{version}'")
+    print(f"'{pkg}=={version}'")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "PACKAGE_NAME",
+        help="A python package name, e.g. 'mypy'",
+    )
+    args = parser.parse_args()
+
+    pkg = args.PACKAGE_NAME
+
+    show_package_version(pkg)
+
+
+if __name__ == "__main__":
+    main()
