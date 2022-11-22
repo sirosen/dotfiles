@@ -1,5 +1,7 @@
 # configure rbenv
 eval "$(rbenv init -)"
+# configure fnm
+[ -x fnm ] && eval "$(fnm env)"
 
 
 # kitchen testing should use dokken if possible
@@ -23,11 +25,7 @@ export SEARCH_TEST_EP='616aeee4-8bec-11e6-b047-22000b92c261'
 export GITHUB_TOKEN_LOC=~/.github-token
 
 if [ -z "$TMUX" ]; then
-    tmux attach
+  tmux attach
 else
-    export TERM=xterm-256color  # nothing else worked, yeesh...
+  export TERM=xterm-256color  # nothing else worked, yeesh...
 fi
-
-# setup NVM
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm

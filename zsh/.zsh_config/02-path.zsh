@@ -17,6 +17,8 @@ PYENV_SHIMS="$HOME/.pyenv/shims"
 PATH="$PATH:$PYENV_SHIMS:$PYENV_ROOT/bin"
 # add poetry
 PATH="$PATH:$HOME/.poetry/bin"
+# fnm
+PATH="$PATH:$HOME/.fnm"
 
 export PYENV_ROOT
 export PATH
