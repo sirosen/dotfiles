@@ -32,7 +32,7 @@ def from_utc(s: str, tz: datetime.tzinfo) -> str:
         raise ValueError("Cannot convert from UTC with a timezone")
     if outformat == "isoformat":
         return dt.astimezone(tz=tz).isoformat()
-    return dt.strftime(outformat)
+    return dt.astimezone(tz=tz).strftime(outformat)
 
 
 def parse_offset(o: str) -> datetime.tzinfo:
