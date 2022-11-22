@@ -152,6 +152,29 @@ ec2-instance-by-name () {
       --filters "Name=tag:Name,Values=$iname" "$@"
 }
 
+ec2-terminate-instance-by-name () {
+  local iname="$1"
+  shift 1
+  local iid
+  iid="$(aws ec2 describe-instances \
+      --filters "Name=tag:Name,Values=$iname" "Name=instance-state-name,Values=running" \
+      --query "Reservations[].Instances[].InstanceId" --output text)"
+
+  read -q "confirm?terminate $iname ($iid)? [y/n] "
+  echo
+  case "$confirm" in
+    yes|Yes|y|Y)
+      echo "okay, terminating..."
+      aws ec2 terminate-instances --instance-ids "$iid"
+      ;;
+    no|No|n|N)
+      ;;
+    *)
+      echo "unrecognized answer; treated as N"
+      ;;
+  esac
+}
+
 # ssh
 
 unload-ssh-keys () {
