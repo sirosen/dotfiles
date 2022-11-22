@@ -50,12 +50,13 @@ setprofile-ops () { _switch_aws_account ops; }
 setprofile-transfer () { _switch_aws_account transfer; }
 setprofile-dns () { _switch_aws_account dns; }
 setprofile-search () { _switch_aws_account search; }
+setprofile-automate () { _switch_aws_account automate; }
 setprofile-webapps () { _switch_aws_account webapps; }
 setprofile-dev () { _switch_aws_account dev; }
 
 export SWITCH_AWS_ACCOUNT_HOOK=_switch_aws_account
 
-set-sdk-env () {
+set-sdk-env() {
   case "$1" in
     nil|none)
       unset GLOBUS_SDK_ENVIRONMENT
@@ -70,33 +71,38 @@ _sdk_env_zsh_complete() {
 }
 compdef _sdk_env_zsh_complete set-sdk-env
 
-
-# chef
-
-update-cookbook-version () {
-    cd ~/dev/ops/chef-repo/environments
-    cb="$1"
-    ver="$2"
-    sed -i "s/\"$cb\": \"= [[:digit:]]\+.[[:digit:]]\+.[[:digit:]]\+\"/\"$cb\": \"= $ver\"/g" ./*
-}
-
-chef-find-sshable-nodes () {
-    for h in $(knife node list); do
-        EC2SSH_DISABLE_KNOWN_HOSTS=1 ec2ssh -o "ConnectTimeout=1" "$h" '[ -d /var/chef/ ] && hostname' 2>/dev/null
-    done
+# generic completer for multiple uses
+_globus_env_complete() {
+    _arguments "*: :((sandbox integration test staging preview production))"
 }
 
 # service-specific
+
+get-flows-rds-cxn () {
+    aws secretsmanager get-secret-value \
+        --secret-id "flows/$1" \
+        --query "SecretString" \
+        --output text | jq '.rds.users.admin.db_url' -r
+}
+compdef _globus_env_complete get-flows-rds-cxn
+
+globus-flows-healthcheck () {
+  local base_url="https://flows.automate.globus.org"
+  case "$1" in
+    production)
+      ;;
+    *)
+      base_url="https://${1}.flows.automate.globus.org"
+      ;;
+  esac
+  curl -s "${base_url}/health/check"
+}
+compdef _globus_env_complete globus-flows-healthcheck
 
 nexus-auth () {
     curl -v -H "Content-Type: application/json" --data \
         '{"username":"'"$1"'","password":"'"$2"'"}' \
         https://nexus.api.globusonline.org/authenticate
-}
-
-globus-username-to-urn () {
-  local username="$1"
-  echo "urn:globus:auth:identity:$(globus get-identities "$username" --jmespath 'identities[].id' -Funix)"
 }
 
 
@@ -136,4 +142,9 @@ globus-my-shared-eps () {
       --limit 100 \
       --jq 'DATA[?host_endpoint_id!=null].id' \
       -Funix | tr '\t' '\n'
+}
+
+globus-username-to-urn () {
+  local username="$1"
+  echo "urn:globus:auth:identity:$(globus get-identities "$username" --jmespath 'identities[].id' -Funix)"
 }
