@@ -1,0 +1,177 @@
+#!/usr/bin/env python
+
+import argparse
+import collections
+import re
+
+import boto3
+
+sts_client = boto3.client("sts")
+ecs_client = boto3.client("ecs")
+ecr_client = boto3.client("ecr")
+REGION = boto3.session.Session().region_name or "us-east-1"
+ACCOUNT_ID = sts_client.get_caller_identity()["Account"]
+ECR_URL = f"{ACCOUNT_ID}.dkr.ecr.{REGION}.amazonaws.com"
+
+
+def iprint(s, i=0):
+    print((" " * i) + s)
+
+
+def format_tags(desc):
+    tags = desc.get("tags", [])
+    return ", ".join(f"{t['key']}={t['value']}" for t in tags)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cluster-name", help="limit results to this cluster")
+    parser.add_argument("--service-name", help="limit results to this service")
+    return parser.parse_args()
+
+
+def describe_services(cluster_arn, service_name):
+    service_arns = ecs_client.list_services(cluster=cluster_arn)["serviceArns"]
+    if service_name:
+        if "*" in service_name:
+            service_arns = [
+                s for s in service_arns if re.fullmatch(service_name, s.rsplit("/")[-1])
+            ]
+        else:
+            service_arns = [
+                s for s in service_arns if service_name == s.rsplit("/")[-1]
+            ]
+    service_descs = []
+    i = 0
+    while i < len(service_arns):
+        batch = service_arns[i : i + 10]
+        i += 10
+        service_descs.extend(
+            ecs_client.describe_services(
+                cluster=cluster_arn, services=batch, include=["TAGS"]
+            )["services"]
+        )
+    return service_descs
+
+
+def describe_tasks(cluster_arn, service_name):
+    task_arns = ecs_client.list_tasks(cluster=cluster_arn, serviceName=service_name)[
+        "taskArns"
+    ]
+    task_descs = []
+    i = 0
+    while i < len(task_arns):
+        batch = task_arns[i : i + 100]
+        i += 100
+        task_descs.extend(
+            ecs_client.describe_tasks(
+                cluster=cluster_arn, tasks=batch, include=["TAGS"]
+            )["tasks"]
+        )
+    return task_descs
+
+
+def main():
+    args = parse_args()
+
+    images = []
+
+    if args.cluster_name:
+        cluster_descs = ecs_client.describe_clusters(
+            clusters=[args.cluster_name], include=["TAGS"]
+        )["clusters"]
+    else:
+        cluster_arns = ecs_client.list_clusters()["clusterArns"]
+        cluster_descs = ecs_client.describe_clusters(
+            clusters=cluster_arns, include=["TAGS"]
+        )["clusters"]
+
+    print("# ECS")
+    for cdesc in cluster_descs:
+        # describe cluster attributes
+        cluster_arn = cdesc["clusterArn"]
+        iprint(cdesc["clusterName"] + ":")
+        iprint(f"ARN: {cluster_arn}", i=2)
+        iprint(f"tags: {format_tags(cdesc)}", i=2)
+
+        # get service attributes
+        service_descs = describe_services(cluster_arn, service_name=args.service_name)
+
+        # describe service attributes
+        iprint("services:", i=2)
+        for sdesc in service_descs:
+            service_arn = sdesc["serviceArn"]
+            service_name = sdesc["serviceName"]
+            iprint(service_name + ":", i=4)
+            iprint(f"ARN: {service_arn}", i=6)
+            iprint(f"tags: {format_tags(sdesc)}", i=6)
+
+            # get task attributes
+            task_descs = describe_tasks(cluster_arn, service_name)
+            iprint("tasks:", i=6)
+            for tdesc in task_descs:
+                iprint(f"ARN: {tdesc['taskArn']}", i=8)
+                iprint(f"tags: {format_tags(tdesc)}", i=8)
+                iprint("containers:", i=8)
+                for container in tdesc["containers"]:
+                    iprint("ARN: " + container["containerArn"], i=10)
+                    iprint("image: " + container["image"], i=10)
+                    images.append(container["image"])
+
+    if images:
+        print("\n# ECR")
+        image_repo_map = collections.defaultdict(list)
+        by_tag = collections.defaultdict(dict)
+        by_digest = collections.defaultdict(dict)
+        for image in images:
+            image_tag, image_digest = None, None
+            if ":" in image:
+                repository, _, image_tag = image.partition(":")
+            elif "@" in image:
+                repository, _, image_digest = image.partiton("@")
+            else:
+                print(f"an image was in an unexpected format: {image}")
+                continue
+
+            repo_name = repository.split("/")[-1]
+            if image_tag:
+                by_tag[repo_name][image_tag] = image
+            else:
+                by_digest[repo_name][image_digest] = image
+            image_repo_map[repo_name].append((image_tag, image_digest))
+        for repo, images in image_repo_map.items():
+            print(repo + " repository:")
+
+            image_ids = [
+                {"imageDigest": d} if d is not None else {"imageTag": t}
+                for (t, d) in images
+            ]
+            image_details = ecr_client.describe_images(
+                repositoryName=repo, imageIds=image_ids
+            )["imageDetails"]
+            for detail in image_details:
+                image_digest = detail["imageDigest"]
+                image_tags = detail["imageTags"]
+                if image_digest in by_digest[repo]:
+                    image_name = by_digest[repo][image_digest]
+                else:
+                    for tag in image_tags:
+                        if tag in by_tag[repo]:
+                            image_name = by_tag[repo][tag]
+                            break
+                    else:
+                        image_name = "<<anonymous image>>"
+
+                iprint(f"{image_name}:", i=2)
+                iprint(f"imageDigest: {image_digest}", i=4)
+                iprint("imageTags:", i=4)
+                for tag in image_tags:
+                    iprint(tag, i=6)
+                pushed_at = detail["imagePushedAt"].isoformat()
+                iprint(f"imagePushedAt: {pushed_at}", i=4)
+                pull_time = detail["lastRecordedPullTime"].isoformat()
+                iprint(f"lastRecordedPullTime: {pull_time}", i=4)
+
+
+if __name__ == "__main__":
+    main()
