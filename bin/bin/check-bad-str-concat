@@ -6,6 +6,7 @@ import subprocess
 import sys
 
 import libcst
+import libcst.matchers
 
 
 def is_python(filename: str) -> bool:
@@ -47,13 +48,18 @@ class AdjacentStringCollector(libcst.CSTVisitor):
         self.bad_linenos: set[int] = set()
 
     def visit_ConcatenatedString(self, node: libcst.ConcatenatedString) -> None:
-        lpos = self.get_metadata(libcst.metadata.PositionProvider, node.left).start
-        rpos = self.get_metadata(libcst.metadata.PositionProvider, node.right).start
-        if lpos.line == rpos.line:
-            self.bad_linenos.add(lpos.line)
+        if libcst.matchers.matches(
+            node.whitespace_between, libcst.matchers.SimpleWhitespace()
+        ):
+            if "\n" not in node.whitespace_between.value:
+                lpos = self.get_metadata(
+                    libcst.metadata.PositionProvider, node.left
+                ).start
+                self.bad_linenos.add(lpos.line)
 
 
 def check_file(filename) -> bool:
+    print(f"checking {filename}")
     visitor = AdjacentStringCollector()
     with open(filename) as fp:
         tree = libcst.parse_module(fp.read())
