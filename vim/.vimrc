@@ -42,6 +42,7 @@ if isdirectory($HOME.'/.vim/bundle/vundle')
   Plugin 'cespare/vim-toml'
   Plugin 'rdolgushin/groovy.vim'
   Plugin 'Glench/Vim-Jinja2-Syntax'
+  Plugin 'habamax/vim-rst'
 
   " Linting pluins
   Plugin 'w0rp/ale'
@@ -93,6 +94,10 @@ let g:airline_symbols.maxlinenr = '㏑'
 let g:airline_symbols.whitespace = 'Ξ'
 hi ALEStyleError guibg=yellow
 
+
+function UseRuffInALE ()
+  let b:ale_linters = {'python': ['ruff']}
+endfunction
 
 function DisablePyIsort ()
   let b:ale_fixers = {'python': ['black']}
@@ -154,6 +159,11 @@ function LoadMyVimConfig ()
           if l:var == "py_isort"
             if l:val == "off"
               call DisablePyIsort()
+            endif
+          endif
+          if l:var == "py_ruff"
+            if l:val == "on"
+              call UseRuffInALE()
             endif
           endif
         endif
