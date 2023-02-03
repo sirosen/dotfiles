@@ -38,7 +38,7 @@ def all_py_filenames(files, use_git_ls):
             if is_python(file):
                 yield file
     else:
-        yield from glob.glob(os.path.join(os.getcwd(), "**/*.py"), recursive=True)
+        yield from glob.glob("**/*.py", recursive=True)
 
 
 class AdjacentStringCollector(libcst.CSTVisitor):
