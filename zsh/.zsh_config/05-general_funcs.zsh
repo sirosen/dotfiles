@@ -204,3 +204,13 @@ vundle-setup () {
     (cd ~/.vim/bundle/vundle && git pull 2&>1 >/dev/null)
     vim +PluginInstall +qall
 }
+
+# my custom vim config, read by autoload func in vimrc
+myvim-config-generate () {
+  echo "writing to ${PWD}/.myvim-config"
+  cat > .myvim-config <<EOH
+autoformat = off
+py_isort = off
+py_ruff = on
+EOH
+}

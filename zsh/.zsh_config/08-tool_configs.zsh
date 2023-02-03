@@ -4,11 +4,6 @@ eval "$(rbenv init -)"
 [ -x fnm ] && eval "$(fnm env)"
 
 
-# kitchen testing should use dokken if possible
-export KITCHEN_YAML=.kitchen.yml
-export KITCHEN_LOCAL_YAML=.kitchen.dokken.yml
-
-
 # needed for the load/unload keys funcs
 export SSH_AUTH_SOCK=~/.ssh/ssh-agent.$(ec2metadata --instance-id).sock
 
@@ -29,3 +24,7 @@ if [ -z "$TMUX" ]; then
 else
   export TERM=xterm-256color  # nothing else worked, yeesh...
 fi
+
+# work around the ongoing issue with posix_local sysconfig for virtualenv
+# see: https://github.com/pypa/virtualenv/issues/2350
+export DEB_PYTHON_INSTALL_LAYOUT=deb
