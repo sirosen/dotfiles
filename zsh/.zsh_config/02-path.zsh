@@ -14,7 +14,7 @@ PATH="$PATH:$HOME/.hextc"
 # add pyenv and pyenv shims to path, set pyenv dir
 PYENV_ROOT="$HOME/.pyenv"
 PYENV_SHIMS="$HOME/.pyenv/shims"
-PATH="$PATH:$PYENV_SHIMS:$PYENV_ROOT/bin"
+PATH="$PYENV_SHIMS:$PYENV_ROOT/bin:$PATH"
 # add poetry
 PATH="$PATH:$HOME/.poetry/bin"
 # fnm
