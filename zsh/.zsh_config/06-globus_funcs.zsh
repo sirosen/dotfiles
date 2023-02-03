@@ -56,26 +56,6 @@ setprofile-dev () { _switch_aws_account dev; }
 
 export SWITCH_AWS_ACCOUNT_HOOK=_switch_aws_account
 
-set-sdk-env() {
-  case "$1" in
-    nil|none)
-      unset GLOBUS_SDK_ENVIRONMENT
-      ;;
-    *)
-      export GLOBUS_SDK_ENVIRONMENT="$1"
-      ;;
-  esac
-}
-_sdk_env_zsh_complete() {
-    _arguments "*: :((nil sandbox integration test staging preview production))"
-}
-compdef _sdk_env_zsh_complete set-sdk-env
-
-# generic completer for multiple uses
-_globus_env_complete() {
-    _arguments "*: :((sandbox integration test staging preview production))"
-}
-
 # service-specific
 
 get-flows-rds-cxn () {
@@ -84,20 +64,11 @@ get-flows-rds-cxn () {
         --query "SecretString" \
         --output text | jq '.rds.users.admin.db_url' -r
 }
-compdef _globus_env_complete get-flows-rds-cxn
 
-globus-flows-healthcheck () {
-  local base_url="https://flows.automate.globus.org"
-  case "$1" in
-    production)
-      ;;
-    *)
-      base_url="https://${1}.flows.automate.globus.org"
-      ;;
-  esac
-  curl -s "${base_url}/health/check"
+reconstitute-flows-env-vars () {
+  NEW_VERSION="$(poetry version -s)"
+  BRANCH_NAME="$(git rev-parse --abbrev-ref HEAD)"
 }
-compdef _globus_env_complete globus-flows-healthcheck
 
 nexus-auth () {
     curl -v -H "Content-Type: application/json" --data \
@@ -148,3 +119,11 @@ globus-username-to-urn () {
   local username="$1"
   echo "urn:globus:auth:identity:$(globus get-identities "$username" --jmespath 'identities[].id' -Funix)"
 }
+
+# initialize shlibload
+if type globus-shlibload > /dev/null; then
+  eval "$(globus-shlibload --completions sdk flows)"
+
+  # shlibload-sourced completers
+  compdef _globus_env_complete get-flows-rds-cxn
+fi
