@@ -39,10 +39,10 @@ _prelineadd () {
   shift 2
 
   local sep="|"
-  sep="$(_color_text "$sep" --fg fg4 --bg bg1)"
+  sep="$(_color_text "$sep" --fg fg4 --bg bg0_s)"
   [ -n "$preline" ] && preline="$preline$sep"
 
-  preline="${preline}$(_color_text " $add " --bg bg1 "$@")"
+  preline="${preline}$(_color_text " $add " --bg bg0_s "$@")"
   echo "$preline"
 }
 
@@ -89,6 +89,9 @@ precmd () {
         fi
         if [ -n "$GLOBUS_SDK_ENVIRONMENT" ]; then
           pre_line="$(_prelineadd "$pre_line" "sdkenv:$GLOBUS_SDK_ENVIRONMENT" --fg aqua --bold)"
+        fi
+        if [ -n "$GLOBUS_PROFILE" ]; then
+          pre_line="$(_prelineadd "$pre_line" "globus-cli:$GLOBUS_PROFILE" --fg purple --bold)"
         fi
         PROMPT="$pre_line"$'\n'"${PROMPT}"
     fi
