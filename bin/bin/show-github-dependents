@@ -1,0 +1,70 @@
+#!/home/sirosen/bin/.venv-bs4/bin/python
+
+# based on answers from
+#   https://stackoverflow.com/questions/58734176/how-to-use-github-api-to-get-a-repositorys-dependents-information-in-github
+#
+# but cleaned up and corrected
+
+import argparse
+import sys
+import time
+
+import requests
+from bs4 import BeautifulSoup
+
+
+def main(repo, *, min_stars=0, output=sys.stdout):
+    url = f"https://github.com/{repo}/network/dependents"
+
+    result = []
+    while True:
+        print("url: " + url + "  " + "count: " + str(len(result)))
+        r = requests.get(url)
+        if r.status_code == 429:
+            print("rate limited, sleep(30) ...")
+            time.sleep(30)
+            continue
+
+        soup = BeautifulSoup(r.content, "html.parser")
+
+        repos_on_page = [
+            {
+                "name": "{}/{}".format(
+                    t.find("a", {"data-repository-hovercards-enabled": ""}).text,
+                    t.find("a", {"data-hovercard-type": "repository"}).text,
+                ),
+                "stars": int(
+                    t.find("svg", {"class": "octicon-star"})
+                    .parent.text.strip()
+                    .replace(",", "")
+                ),
+            }
+            for t in soup.findAll("div", {"class": "Box-row"})
+        ]
+        result.extend([repo for repo in repos_on_page if repo["stars"] >= min_stars])
+
+        next_url = None
+        next_container = soup.find("div", {"class": "paginate-container"})
+        for u in next_container.findAll("a"):
+            if u.text == "Next":
+                next_url = u["href"]
+        if next_url is None:
+            print("done paging")
+            break
+        else:
+            url = next_url
+
+    for r in result:
+        print(r["name"] + ", " + str(r["stars"]), file=output)
+    print(len(result), file=output)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("repo")
+    parser.add_argument("-m", "--min-stars", type=int, default=0)
+    parser.add_argument(
+        "-o", "--output", type=argparse.FileType("w"), default=sys.stdout
+    )
+    args = parser.parse_args()
+    main(args.repo, min_stars=args.min_stars, output=args.output)
