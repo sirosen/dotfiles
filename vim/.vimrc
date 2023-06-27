@@ -33,7 +33,11 @@ if isdirectory($HOME.'/.vim/bundle/vundle')
   Plugin 'morhetz/gruvbox'
 
   " Python project plugins and completion
-  Plugin 'ycm-core/YouCompleteMe'
+  if v:version >= 900
+    Plugin 'github/copilot.vim'
+  else
+    Plugin 'ycm-core/YouCompleteMe'
+  endif
 
   " File-Type Plugins
   Plugin 'plasticboy/vim-markdown'
@@ -71,9 +75,10 @@ let g:EditorConfig_exclude_patterns = ['fugitive://.*']
 
 " colors
 set termguicolors
-let g:gruvbox_contrast_dark="hard"
+" let g:gruvbox_contrast_dark="hard"
 set background=dark
 colorscheme gruvbox
+hi Normal guibg=NONE ctermbg=NONE
 
 " ALE conf
 let g:ale_fixers = {'*': [], 'python': ['isort', 'black'], 'json': ['jq'], 'rust': ['rustfmt']}
@@ -182,6 +187,7 @@ augroup ag_filetype
   autocmd FileType gitcommit set textwidth=70
 augroup END
 
+
 " always highlight trailing whitespace in red while editing
 highlight TrailingWhitespace ctermbg=red guibg=red
 match TrailingWhitespace /\s\+$/
@@ -201,6 +207,16 @@ augroup END
 nmap <silent> <leader>n :ALENext<cr>
 nmap <silent> <leader>f :ALEFix<cr>
 
+if v:version >= 900
+  " copilot keybindings
+  inoremap <C-l> <Plug>(copilot-next)
+  inoremap <C-h> <Plug>(copilot-previous)
+else
+  " YCM keybindings
+  nmap <leader>cl :YcmCompleter GoToDeclaration<cr>
+  nmap <leader>cf :YcmCompleter GoToDefinition<cr>
+  nmap <leader>cc :YcmCompleter GoToDefinitionElseDeclaration<cr>
+endif
 
 " define a nice way to run shfmt
 command ShFmt %!shfmt -ci -sr -i 2

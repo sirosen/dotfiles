@@ -6,6 +6,9 @@ package-lock.json
 testssl.sh
 gti
 
+# vim 9 installation tree
+.vim9
+
 ## tools & dirs downloaded by the personal tool updater script ##
 # python built venvs
 .venv-*
@@ -33,3 +36,9 @@ kubectl-*
 helm
 helm-*
 mlr
+fnm
+fnm-*
+vim
+vim-*
+docker-compose
+docker-compose-*

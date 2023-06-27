@@ -2,22 +2,32 @@
 set -e
 cd "$(dirname "$0")"
 
+VIM_VERSION="9.0.1667"
+FNM_VERSION="1.33.1"
 SHFMT_VERSION="3.2.2"
 SHELLCHECK_VERSION="0.9.0"
 CHEAT_VERSION='4.2.2'
-GH_VERSION="2.12.1"
+GH_VERSION="2.29.0"
 MILLER_VERSION="6.3.0"
 KUBECTL_VERSION="1.24.2"
 HELM_VERSION="3.9.0"
+DOCKER_COMPOSE_VERSION="2.14.2"
 
 print_usage () {
-  echo "USAGE: update-personal-bin [-h|--help] [--npm] [--python] [--binary] [--all]"
+  echo "USAGE: update-personal-bin [-h|--help] [--verbose] [--npm] [--python] [--binary] [--all]"
+}
+
+vecho () {
+  if [ "$verbose" -eq 1 ]; then
+    echo "$@"
+  fi
 }
 
 # handle args
 do_npm=0
 do_python=0
 do_binary=0
+verbose=0
 while [ $# -gt 0 ]; do
   case "$1" in
     "-h"|"--help")
@@ -37,6 +47,9 @@ while [ $# -gt 0 ]; do
       do_npm=1
       do_binary=1
       ;;
+    "--verbose")
+      verbose=1
+      ;;
     *)
       print_usage
       exit 2
@@ -50,7 +63,9 @@ if [ "$do_npm" -eq 0 ] && [ "$do_python" -eq 0 ] && [ "$do_binary" -eq 0 ]; then
 fi
 
 
+vecho -n "check if NPM tools requested..."
 if [ $do_npm -eq 1 ]; then
+  vecho "yes"
   npm install -g \
     openapi3-generator \
     stylelint stylelint-config-standard \
@@ -65,83 +80,148 @@ if [ $do_npm -eq 1 ]; then
       ln -s "npm-packages/bin/$x" "$x"
     fi
   done
+else
+  vecho "no"
 fi
 
+vecho -n "check if python tools requested..."
 if [ $do_python -eq 1 ]; then
+  vecho "yes"
   echo "ensure .venv-libcst is up to date"
   if [ ! -d .venv-libcst ]; then
     python -m venv .venv-libcst
   fi
   .venv-libcst/bin/pip install -U libcst
   echo ".venv-libcst done"
+else
+  vecho "no"
 fi
 
+vecho -n "check if binary tools requested..."
 if [ $do_binary -eq 1 ]; then
+  vecho "yes"
+
+  if [ ! -f "vim-$VIM_VERSION" ]; then
+    vecho "vim v$VIM_VERSION detected missing, will install"
+    curl -LsSf -m 60 \
+      "https://github.com/vim/vim/archive/refs/tags/v${VIM_VERSION}.tar.gz" | \
+      tar -xz
+    pushd vim-$VIM_VERSION/src
+    ./configure \
+      --with-features=huge \
+      --enable-python3interp=dynamic \
+      --prefix "$HOME/bin/.vim9"
+    make
+    make install
+    popd
+    rm vim-$VIM_VERSION
+    ln -s .vim9/bin/vim vim-$VIM_VERSION
+    ln -s vim-$VIM_VERSION vim
+    vecho "vim install done"
+  fi
+
+  if [ ! -f "fnm-$FNM_VERSION" ]; then
+    vecho "fnm v$FNM_VERSION detected missing, will install"
+    curl -LsSf -m 60 -o "fnm-${FNM_VERSION}.gz" \
+      "https://github.com/Schniz/fnm/releases/download/v${FNM_VERSION}/fnm-linux.zip"
+    gunzip "fnm-${FNM_VERSION}.gz"
+    chmod +x "fnm-${FNM_VERSION}"
+    vecho "fnm install done"
+  fi
+  cp "fnm-$FNM_VERSION" fnm
+
   if [ ! -f "mlr" ]; then
+    vecho "mlr (miller) v$MILLER_VERSION detected missing, will install"
     curl -LsSf -m 60 \
       "https://github.com/johnkerl/miller/releases/download/v${MILLER_VERSION}/miller-${MILLER_VERSION}-linux-amd64.tar.gz" | \
       tar -xz
     mv "miller-${MILLER_VERSION}-linux-amd64/mlr" .
     rm -r "miller-${MILLER_VERSION}-linux-amd64"
+    vecho "mlr install done"
   fi
 
   if [ ! -f "eksctl" ]; then
+    vecho "eksctl detected missing, will install"
     curl -LsSf -m 60 \
       "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | \
       tar -xz
     chmod +x eksctl
+    vecho "eksctl install done"
   fi
 
   if [ ! -f "shfmt-$SHFMT_VERSION" ]; then
+    vecho "shfmt v$SHFMT_VERSION detected missing, will install"
     curl -LsSf -m 60 -o "shfmt-$SHFMT_VERSION" \
       https://github.com/mvdan/sh/releases/download/v3.2.2/shfmt_v3.2.2_linux_amd64
     chmod +x "shfmt-$SHFMT_VERSION"
+    vecho "shfmt install done"
   fi
   cp "shfmt-$SHFMT_VERSION" shfmt
 
   if [ ! -f "cheat-$CHEAT_VERSION" ]; then
+    vecho "cheat v$CHEAT_VERSION detected missing, will install"
     curl -LsSf -m 60 -o "cheat.gz" \
       https://github.com/cheat/cheat/releases/download/4.2.2/cheat-linux-amd64.gz
     gunzip -c cheat.gz > "cheat-$CHEAT_VERSION"
     rm cheat.gz
     chmod +x "cheat-$CHEAT_VERSION"
+    vecho "cheat install done"
   fi
   cp "cheat-$CHEAT_VERSION" cheat
   chmod +x cheat
 
   if [ ! -f "shellcheck-$SHELLCHECK_VERSION" ]; then
+    vecho "shellcheck v$SHELLCHECK_VERSION detected missing, will install"
     curl -LsSf -m 60 -o "shellcheck-v$SHELLCHECK_VERSION.tar.xz" \
       "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz"
     tar -xf "shellcheck-v$SHELLCHECK_VERSION.tar.xz"
     mv "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" "shellcheck-$SHELLCHECK_VERSION"
     rm "shellcheck-v$SHELLCHECK_VERSION.tar.xz"
     rm -r "shellcheck-v${SHELLCHECK_VERSION}"
+    vecho "shellcheck install done"
   fi
   cp "shellcheck-$SHELLCHECK_VERSION" shellcheck
 
   if [ ! -f "gh-$GH_VERSION" ]; then
+    vecho "gh v$GH_VERSION detected missing, will install"
     curl -LsSf -m 60 -o "gh-v$GH_VERSION.tar.gz" \
       "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz"
     tar -xzf "gh-v$GH_VERSION.tar.gz"
     mv "gh_${GH_VERSION}_linux_amd64/bin/gh" "gh-$GH_VERSION"
     rm "gh-v$GH_VERSION.tar.gz"
     rm -r "gh_${GH_VERSION}_linux_amd64"
+    vecho "gh install done"
   fi
   cp "gh-$GH_VERSION" gh
 
   # kubectl/helm
   if [ ! -f "kubectl-$KUBECTL_VERSION" ]; then
+    vecho "kubectl v$KUBECTL_VERSION detected missing, will install"
     curl -LsSf -m 60 -o "kubectl-$KUBECTL_VERSION" \
       "https://dl.k8s.io/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl"
     chmod +x "kubectl-$KUBECTL_VERSION"
+    vecho "kubectl install done"
   fi
   if [ ! -f "helm-$HELM_VERSION" ]; then
+    vecho "helm v$HELM_VERSION detected missing, will install"
     curl -LsSf -m 60 -o "helm-v$HELM_VERSION.tar.gz" \
       "https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz"
     tar -xzf "helm-v$HELM_VERSION.tar.gz"
     mv linux-amd64/helm "helm-$HELM_VERSION"
     rm -r linux-amd64
+    vecho "helm install done"
   fi
   cp "kubectl-$KUBECTL_VERSION" kubectl
   cp "helm-$HELM_VERSION" helm
+
+  if [ ! -f "docker-compose-$DOCKER_COMPOSE_VERSION" ]; then
+    vecho "docker-compose v$DOCKER_COMPOSE_VERSION detected missing, will install"
+    curl -LsSf -m 60 -o "docker-compose-$DOCKER_COMPOSE_VERSION" \
+      "https://github.com/docker/compose/releases/download/v$DOCKER_COMPOSE_VERSION/docker-compose-linux-x86_64"
+    chmod +x "docker-compose-$DOCKER_COMPOSE_VERSION"
+    vecho "docker-compose install done"
+  fi
+  cp "docker-compose-$DOCKER_COMPOSE_VERSION" docker-compose
+else
+  vecho "no"
 fi

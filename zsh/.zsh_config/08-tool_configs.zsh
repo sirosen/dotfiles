@@ -3,10 +3,6 @@ eval "$(rbenv init -)"
 # configure fnm
 [ -x fnm ] && eval "$(fnm env)"
 
-
-# needed for the load/unload keys funcs
-export SSH_AUTH_SOCK=~/.ssh/ssh-agent.$(ec2metadata --instance-id).sock
-
 # explicit default to autodetect
 export EC2SSH_AUTODETECT=1
 export EC2SSH_DISABLE_KNOWN_HOSTS=1
@@ -18,13 +14,3 @@ export SEARCH_TEST_EP='616aeee4-8bec-11e6-b047-22000b92c261'
 
 # GITHUB Token
 export GITHUB_TOKEN_LOC=~/.github-token
-
-if [ -z "$TMUX" ]; then
-  tmux attach
-else
-  export TERM=xterm-256color  # nothing else worked, yeesh...
-fi
-
-# work around the ongoing issue with posix_local sysconfig for virtualenv
-# see: https://github.com/pypa/virtualenv/issues/2350
-export DEB_PYTHON_INSTALL_LAYOUT=deb
