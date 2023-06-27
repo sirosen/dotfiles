@@ -79,7 +79,7 @@ precmd () {
         PROMPT="$(_color_text "ᚠ ${current_branch} " --bold --fg bg1 --bg brightaqua)${PROMPT}"
     fi
 
-    if [ -n "$VIRTUAL_ENV" ] || [ -n "$AWS_PROFILE" ] || [ -n "$GLOBUS_SDK_ENVIRONMENT" ]; then
+    if [ -n "$VIRTUAL_ENV" ] || [ -n "$GLOBUS_PROFILE" ] || [ -n "$AWS_PROFILE" ] || [ -n "$GLOBUS_SDK_ENVIRONMENT" ]; then
         local pre_line=""
         if [ -n "$AWS_PROFILE" ]; then
           pre_line="$(_prelineadd "$pre_line" "aws:$AWS_PROFILE" --fg orange --bold)"
