@@ -47,6 +47,7 @@ _switch_aws_account() {
 setprofile-funcx () { _switch_aws_account funcx; }
 setprofile-nexus () { _switch_aws_account nexus; }
 setprofile-ops () { _switch_aws_account ops; }
+setprofile-shared-amicore () { _switch_aws_account shared-amicore; }
 setprofile-transfer () { _switch_aws_account transfer; }
 setprofile-dns () { _switch_aws_account dns; }
 setprofile-search () { _switch_aws_account search; }
@@ -122,7 +123,7 @@ globus-username-to-urn () {
 
 # initialize shlibload
 if type globus-shlibload > /dev/null; then
-  eval "$(globus-shlibload --completions sdk flows)"
+  eval "$(globus-shlibload --completions sdk flows timer)"
 
   # shlibload-sourced completers
   compdef _globus_env_complete get-flows-rds-cxn
