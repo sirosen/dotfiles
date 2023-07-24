@@ -99,4 +99,3 @@ precmd () {
     PROMPT="${ecodeprompt}${PROMPT} \$ "
     PS1="$PROMPT"
 }
-
