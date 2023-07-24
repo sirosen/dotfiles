@@ -1,4 +1,7 @@
-#!/home/sirosen/bin/.venv-bs4/bin/python
+#!/usr/bin/env python
+# Requirements:
+# requests
+# beautifulsoup4
 
 # based on answers from
 #   https://stackoverflow.com/questions/58734176/how-to-use-github-api-to-get-a-repositorys-dependents-information-in-github
@@ -6,11 +9,26 @@
 # but cleaned up and corrected
 
 import argparse
+import os
+import shutil
 import sys
 import time
 
-import requests
-from bs4 import BeautifulSoup
+try:
+    import requests
+    from bs4 import BeautifulSoup
+except ImportError:
+    if os.getenv("PIP_RUN_INVOKED_ONCE") == "1":
+        print("pip-run did not satisfy requirements", file=sys.stderr)
+        sys.exit(1)
+
+    path = shutil.which("pip-run")
+    if not path:
+        print("pip-run not found", file=sys.stderr)
+        sys.exit(1)
+    env = os.environ.copy()
+    env["PIP_RUN_INVOKED_ONCE"] = "1"
+    os.execve(path, [path, "--", sys.argv[0]], env)
 
 
 def main(repo, *, min_stars=0, output=sys.stdout):
