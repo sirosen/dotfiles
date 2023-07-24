@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+"""
+Convert ReST to MD.
+"""
+
+import argparse
+import re
+import sys
+import typing as t
+
+H2_RST_PATTERN = re.compile(r"-+")
+H3_RST_PATTERN = re.compile(r"~+")
+
+RST_LINK_PATTERN = re.compile(r"`([^`]+) <([^`]+)>`_")
+
+SPHINX_ISSUES_PR_PATTERN = re.compile(r":pr:`(\d+)`")
+SPHINX_ISSUES_ISSUE_PATTERN = re.compile(r":issue:`(\d+)`")
+SPHINX_ISSUES_USER_PATTERN = re.compile(r":user:`([^`]+)`")
+
+
+def convert_rst_to_md(lines: list[str]) -> t.Iterator[str]:
+    skip = False
+    for i, line in enumerate(lines):
+        if skip:
+            skip = False
+            continue
+
+        try:
+            peek = lines[i + 1]
+        except IndexError:
+            peek = None
+
+        updated = line
+
+        if peek is not None and H3_RST_PATTERN.fullmatch(peek):
+            skip = True
+            updated = f"## {updated}"
+
+        updated = SPHINX_ISSUES_PR_PATTERN.sub(r"#\1", updated)
+        updated = SPHINX_ISSUES_ISSUE_PATTERN.sub(r"#\1", updated)
+        updated = SPHINX_ISSUES_USER_PATTERN.sub(r"@\1", updated)
+        updated = RST_LINK_PATTERN.sub(r"[\1](\2)", updated)
+        updated = updated.replace("``", "`")
+        yield updated
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("doc", help="File to convert. Use `-` for stdin.")
+    args = parser.parse_args()
+    if args.doc == "-":
+        lines = sys.stdin.readlines()
+    else:
+        with open(args.doc) as f:
+            lines = f.readlines()
+
+    for line in convert_rst_to_md(lines):
+        print(line, end="")
+
+
+if __name__ == "__main__":
+    main()
