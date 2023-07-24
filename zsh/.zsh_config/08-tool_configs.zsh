@@ -1,7 +1,9 @@
 # configure rbenv
 eval "$(rbenv init -)"
 # configure fnm
-[ -x fnm ] && eval "$(fnm env)"
+if command -v fnm > /dev/null; then
+  eval "$(fnm env)"
+fi
 
 # explicit default to autodetect
 export EC2SSH_AUTODETECT=1
