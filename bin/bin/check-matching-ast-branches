@@ -150,7 +150,7 @@ def main():
         print("Found matching AST branches:")
         for fname, lineno in failures:
             if fname.startswith(cwd):
-                fname = fname[len(cwd) + 1:]
+                fname = fname[len(cwd) + 1 :]
             print(f"{fname}:{lineno}")
         sys.exit(1)
     print("ok")

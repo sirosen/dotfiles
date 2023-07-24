@@ -61,9 +61,7 @@ class RecordSpec:
                 best_match = domain
 
         if not best_match:
-            raise ValueError(
-                "did not find a match for {} in {}".format(self.name, domains)
-            )
+            raise ValueError(f"did not find a match for {self.name} in {domains}")
         return best_match
 
     def as_changeset(self):
@@ -91,8 +89,8 @@ class RecordSpec:
             raise ValueError
 
 
-def _parse_line(l):
-    raw = shlex.split(l)
+def _parse_line(line):
+    raw = shlex.split(line)
     if raw[0].lower() == "delete":
         return RecordSpec("DELETE", raw[1], record_type=raw[2], value=raw[3])
 
@@ -105,21 +103,19 @@ def _parse_line(l):
 def _all_hosted_zones(client):
     paginator = client.get_paginator("list_hosted_zones")
     for page in paginator.paginate():
-        for hz in page["HostedZones"]:
-            yield hz
+        yield from page["HostedZones"]
 
 
 def _all_records(client, hz_id):
     paginator = client.get_paginator("list_resource_record_sets")
     for page in paginator.paginate(HostedZoneId=hz_id):
-        for item in page["ResourceRecordSets"]:
-            yield item
+        yield from page["ResourceRecordSets"]
 
 
 def _do_listing(client, hosted_zones):
     domains = list(hosted_zones.keys())
     for domain in domains:
-        print("# == {} ==".format(domain))
+        print(f"# == {domain} ==")
         for record in _all_records(client, hosted_zones[domain]):
             if "ResourceRecords" not in record:
                 if record["Type"] == "A" and "AliasTarget" in record:
@@ -146,7 +142,7 @@ def _do_update(filename, client, hosted_zones):
 
     records = []
     existing_records = {}
-    with open(filename, "r") as f:
+    with open(filename) as f:
         for line in f:
             if line.strip().startswith("#"):
                 continue

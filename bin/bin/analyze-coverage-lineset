@@ -54,7 +54,7 @@ def find_best(data, n):
     # list of triples: (diff, (start, end), filename)
     best_diffs = []
 
-    for (fname, x, y) in data:
+    for fname, x, y in data:
         diff = y - x
         if len(best_diffs) < n:
             best_diffs.append((diff, (x, y), fname))
