@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# Requirements:
+# requests
 """
 {
     "new": {
@@ -13,9 +15,21 @@
     }
 }
 """
+
 import datetime
-import json
-import urllib.request
+
+try:
+    import requests
+except ImportError:
+    import os
+    import shutil
+    import sys
+
+    path = shutil.which("pip-run")
+    if not path:
+        print("pip-run not found", file=sys.stderr)
+        sys.exit(1)
+    os.execv(path, [path, "--", sys.argv[0]])
 
 URL = "https://transfer.api.globus.org/v0.10/private/web_stats"
 
@@ -35,8 +49,7 @@ def bytes_per_second(data):
 
 def main():
     print("= Globus Transfer Stats =")
-    with urllib.request.urlopen(URL) as fp:
-        data = json.load(fp)
+    data = requests.get(URL).json()
     bytes_xfer = data["new"]["bytes"]
     kb_xfer = bytes_xfer / 1024  # kilo
     mb_xfer = kb_xfer / 1024  # mega
