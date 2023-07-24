@@ -1,6 +1,8 @@
 set nomodeline "patch over a vuln
 set nocompatible "Use vim mode
 
+" backspace options
+set backspace=indent,eol,start
 " Soft tabs, 4-ist mode
 set tabstop=4 shiftwidth=4 expandtab
 set wrap
@@ -49,7 +51,7 @@ if isdirectory($HOME.'/.vim/bundle/vundle')
   Plugin 'habamax/vim-rst'
 
   " Linting pluins
-  Plugin 'w0rp/ale'
+  Plugin 'dense-analysis/ale'
 
   " Editorconfig
   Plugin 'editorconfig/editorconfig-vim'
@@ -86,6 +88,7 @@ let g:ale_fixers = {'*': [], 'python': ['isort', 'black'], 'json': ['jq'], 'rust
 "   https://github.com/dense-analysis/ale/issues/2885
 let g:ale_python_isort_options = '--settings-path .'
 let g:ale_linters = {'*': [], 'python': ['flake8'], 'json': ['jsonlint'], 'rust': ['analyzer']}
+let g:ale_virtualtext_cursor = 'disabled'
 
 " airline config, including  use of ALE
 let g:airline#extensions#ale#enabled = 1
