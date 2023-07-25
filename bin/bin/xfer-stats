@@ -1,4 +1,4 @@
-#!/usr/bin/env _python_requirements_launcher
+#!/usr/bin/env pylaunch
 # Requirements:
 #   requests
 """
