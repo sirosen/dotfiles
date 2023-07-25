@@ -1,0 +1,81 @@
+#!/usr/bin/env python
+import hashlib
+import os
+import pathlib
+import subprocess
+import sys
+import venv
+
+VENV_CACHE_DIR = (
+    pathlib.Path.home() / ".cache" / "python_requirements_launcher" / "venvs"
+)
+
+
+def main():
+    ensure_cache_dir()
+    requirements_data = get_requirements_data(sys.argv[1])
+    venv_dir = get_venv_dir(requirements_data)
+    if not venv_dir.exists():
+        print("\n[_python_requirements_launcher] building new venv [START]\n")
+        create_venv(venv_dir, requirements_data)
+        print("\n[_python_requirements_launcher] building new venv [END]\n")
+    launch(venv_dir)
+
+
+def launch(venv_dir):
+    os.execv(
+        str(venv_dir / "bin" / "python"),
+        [str(venv_dir / "bin" / "python")] + sys.argv[1:],
+    )
+
+
+def create_venv(venv_dir, requirements_data):
+    venv.create(venv_dir, with_pip=True)
+
+    requirements_path = venv_dir / "requirements.txt"
+    with open(requirements_path, "w") as fp:
+        fp.write("\n".join(requirements_data) + "\n")
+
+    pip_path = venv_dir / "bin" / "pip"
+    subprocess.run([str(pip_path), "install", "-r", str(requirements_path)])
+
+
+def get_venv_dir(requirements_data):
+    requirements_hash = hashlib.sha256()
+    for req in requirements_data:
+        requirements_hash.update(req.encode("utf-8"))
+    requirements_digest = requirements_hash.hexdigest()
+    return VENV_CACHE_DIR / requirements_digest
+
+
+def get_requirements_data(script_path):
+    return sorted(get_unsorted_requirements_data(script_path))
+
+
+def get_unsorted_requirements_data(script_path):
+    with open(script_path) as fp:
+        lines = fp.readlines()
+    if lines[0].startswith("#!"):
+        lines = lines[1:]
+
+    requirements_data = []
+    in_requirements_block = False
+    for line in lines:
+        if in_requirements_block:
+            if line.strip().startswith("#") and line.strip()[1:] != "":
+                requirements_data.append(line.strip()[1:].strip())
+            else:
+                return requirements_data
+        else:
+            if line.strip() == "# Requirements:":
+                in_requirements_block = True
+            continue
+    return requirements_data
+
+
+def ensure_cache_dir():
+    VENV_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,28 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env _python_requirements_launcher
 # Requirements:
 #   libcst
 import argparse
 import glob
 import os
-import shutil
 import subprocess
 import sys
 
-try:
-    import libcst
-    import libcst.matchers
-except ImportError:
-    if os.getenv("PIP_RUN_INVOKED_ONCE") == "1":
-        print("pip-run did not satisfy requirements", file=sys.stderr)
-        sys.exit(1)
-
-    path = shutil.which("pip-run")
-    if not path:
-        print("pip-run not found", file=sys.stderr)
-        sys.exit(1)
-    env = os.environ.copy()
-    env["PIP_RUN_INVOKED_ONCE"] = "1"
-    os.execve(path, [path, "--", sys.argv[0]], env)
+import libcst
+import libcst.matchers
 
 
 def is_python(filename: str) -> bool:
@@ -112,3 +98,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# vim ft=python

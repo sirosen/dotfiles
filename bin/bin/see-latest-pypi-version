@@ -1,12 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/env _python_requirements_launcher
+# Requirements:
+#   requests
 import argparse
-import json
-import urllib.request
+
+import requests
 
 
 def get_pkg_latest(name: str) -> str:
-    with urllib.request.urlopen(f"https://pypi.python.org/pypi/{name}/json") as conn:
-        version_data = json.load(conn)
+    version_data = requests.get(f"https://pypi.python.org/pypi/{name}/json").json()
     return str(version_data["info"]["version"])
 
 

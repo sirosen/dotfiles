@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env _python_requirements_launcher
+# Requires:
+# boto3
 """
 Tool for simple Route53 management.
 
@@ -200,3 +202,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# vim: ft=python
