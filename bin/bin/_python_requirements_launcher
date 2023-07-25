@@ -12,21 +12,32 @@ VENV_CACHE_DIR = (
 
 
 def main():
+    in_mypy_mode = detect_mypy_mode()
     ensure_cache_dir()
-    requirements_data = get_requirements_data(sys.argv[1])
+    requirements_data = get_requirements_data(mypy_mode=in_mypy_mode)
     venv_dir = get_venv_dir(requirements_data)
     if not venv_dir.exists():
         print("\n[_python_requirements_launcher] building new venv [START]\n")
         create_venv(venv_dir, requirements_data)
         print("\n[_python_requirements_launcher] building new venv [END]\n")
-    launch(venv_dir)
+    launch(venv_dir, mypy_mode=in_mypy_mode)
 
 
-def launch(venv_dir):
-    os.execv(
-        str(venv_dir / "bin" / "python"),
-        [str(venv_dir / "bin" / "python")] + sys.argv[1:],
-    )
+def launch(venv_dir, mypy_mode=False):
+    if mypy_mode:
+        os.execv(
+            str(venv_dir / "bin" / "python"),
+            [str(venv_dir / "bin" / "python"), "-m", "mypy"] + sys.argv[2:],
+        )
+    else:
+        os.execv(
+            str(venv_dir / "bin" / "python"),
+            [str(venv_dir / "bin" / "python")] + sys.argv[1:],
+        )
+
+
+def detect_mypy_mode():
+    return sys.argv[1] == "--mypy-mode"
 
 
 def create_venv(venv_dir, requirements_data):
@@ -48,8 +59,17 @@ def get_venv_dir(requirements_data):
     return VENV_CACHE_DIR / requirements_digest
 
 
-def get_requirements_data(script_path):
-    return sorted(get_unsorted_requirements_data(script_path))
+def get_requirements_data(mypy_mode=False):
+    if mypy_mode:
+        script_path = sys.argv[2]
+    else:
+        script_path = sys.argv[1]
+    reqs = set(get_unsorted_requirements_data(script_path))
+    if mypy_mode:
+        reqs.add("mypy")
+        if "requests" in reqs:
+            reqs.add("types-requests")
+    return sorted(set(reqs))
 
 
 def get_unsorted_requirements_data(script_path):
