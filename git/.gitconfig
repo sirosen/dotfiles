@@ -10,12 +10,6 @@
 	excludesfile = /home/sirosen/.gitignore_global
 [alias]
     tree = log --graph --decorate --all
-    pr-checkout = "!f () { \
-      remote=\"$2\" ; \
-      [ -n \"$remote\" ] || remote=upstream ; \
-      git fetch $remote pull/$1/head ; \
-      git checkout FETCH_HEAD ; \
-    }; f"
     sc = "!./etc/modify-adoc.py CHANGELOG.adoc; git add CHANGELOG.adoc; git commit -v"
     logdiff = "!f () { \
       base=\"$1\"; \
