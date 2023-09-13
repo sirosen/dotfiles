@@ -74,6 +74,19 @@ github-clone () {
     git clone git@github.com:"${1}".git "${@:2}"
 }
 
+github-coauthor () {
+  local username="$1"
+  if [ -z "$username" ]; then
+    return 1
+  fi
+  local response="$(curl -s https://api.github.com/users/$username)"
+  local email="$(jq -r '.email' <<<"$response")"
+  local id="$(jq .id <<<"$response")"
+  local name="$(jq -r '.name // .login' <<< "$response")"
+  printf "Co-authored-by: %s <%d+%s@users.noreply.github.com>\n" "$name" "$id" "$username"
+}
+
+
 globus-clone () {
     github-clone globusonline/"$1" "${@:2}"
 }
