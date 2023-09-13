@@ -16,6 +16,7 @@
       [ -n \"$base\" ] || base=main; \
       git diff HEAD $(git merge-base HEAD \"$base\") > logdiff.diff ; \
     }; f"
+    pr-nonews = "!gh pr create --label no-news-is-good-news"
 [init]
 	defaultBranch = main
 [blame]

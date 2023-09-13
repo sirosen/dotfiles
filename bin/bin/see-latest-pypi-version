@@ -1,4 +1,4 @@
-#!/usr/bin/env pylaunch
+#!/usr/bin/env pip-run
 # Requirements:
 #   requests
 import argparse

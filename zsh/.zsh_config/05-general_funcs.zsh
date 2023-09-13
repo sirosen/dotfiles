@@ -4,6 +4,21 @@ set-tmux-title () {
   tmux rename-window "$1"
 }
 
+venv() {
+  if [ ! -d ".venv" ]; then
+    python -m venv .venv
+    source .venv/bin/activate
+    if [[ -f "setup.cfg" ]] || [[ -f "setup.py" ]] || [[ -f "pyproject.toml" ]]; then
+      pip install -e .
+      # reactivate
+      deactivate
+      source .venv/bin/activate
+    fi
+  else
+    source .venv/bin/activate
+  fi
+}
+
 venv-activate() {
     source "$1"/bin/activate
 }

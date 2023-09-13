@@ -42,3 +42,5 @@ vim
 vim-*
 docker-compose
 docker-compose-*
+yq
+yq-*

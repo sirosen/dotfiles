@@ -2,13 +2,14 @@
 set -e
 cd "$(dirname "$0")"
 
-VIM_VERSION="9.0.1667"
+VIM_VERSION="9.0.1885"
 FNM_VERSION="1.33.1"
-SHFMT_VERSION="3.2.2"
+SHFMT_VERSION="3.7.0"
 SHELLCHECK_VERSION="0.9.0"
 CHEAT_VERSION='4.2.2'
 GH_VERSION="2.29.0"
 MILLER_VERSION="6.3.0"
+YQ_VERSION="4.35.1"
 KUBECTL_VERSION="1.24.2"
 HELM_VERSION="3.9.0"
 DOCKER_COMPOSE_VERSION="2.14.2"
@@ -114,8 +115,9 @@ if [ $do_binary -eq 1 ]; then
     make
     make install
     popd
-    rm vim-$VIM_VERSION
+    rm -r vim-$VIM_VERSION
     ln -s .vim9/bin/vim vim-$VIM_VERSION
+    rm -f vim
     ln -s vim-$VIM_VERSION vim
     vecho "vim install done"
   fi
@@ -138,6 +140,19 @@ if [ $do_binary -eq 1 ]; then
     mv "miller-${MILLER_VERSION}-linux-amd64/mlr" .
     rm -r "miller-${MILLER_VERSION}-linux-amd64"
     vecho "mlr install done"
+  fi
+
+  if [ ! -f "yq-$YQ_VERSION" ]; then
+    vecho "yq v$YQ_VERSION detected missing, will install"
+    curl -LsSf -m 60 \
+      "https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64.tar.gz" |\
+      tar xz
+    mv yq_linux_amd64 yq-$YQ_VERSION
+    ln -s yq-$YQ_VERSION yq
+    mkdir -p ~/.local/share/man/man1/
+    rm install-man-page.sh
+    mv yq.1 ~/.local/share/man/man1
+    vecho "yq install done"
   fi
 
   if [ ! -f "eksctl" ]; then

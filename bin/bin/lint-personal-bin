@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")"
+
+py_bin_files=()
+for filename in $(git ls-files); do
+  if head -n1 "$filename" | grep 'python' > /dev/null; then
+    py_bin_files+=("$filename")
+  fi
+done
+
+for filename in "${py_bin_files[@]}"; do
+  echo "running mypy on $filename"
+  _python_requirements_launcher --mypy-mode "$filename"
+done

@@ -39,20 +39,17 @@ _switch_aws_account() {
       ;;
     ops)
       export GLOBUS_OPS_KEYPAIR=stephen_key
+      globus-mfa-users
       ;;
     *)
+      globus-mfa-users
       ;;
   esac
 }
-setprofile-funcx () { _switch_aws_account funcx; }
-setprofile-nexus () { _switch_aws_account nexus; }
-setprofile-ops () { _switch_aws_account ops; }
 setprofile-shared-amicore () { _switch_aws_account shared-amicore; }
 setprofile-transfer () { _switch_aws_account transfer; }
-setprofile-dns () { _switch_aws_account dns; }
 setprofile-search () { _switch_aws_account search; }
 setprofile-automate () { _switch_aws_account automate; }
-setprofile-webapps () { _switch_aws_account webapps; }
 setprofile-dev () { _switch_aws_account dev; }
 
 export SWITCH_AWS_ACCOUNT_HOOK=_switch_aws_account
