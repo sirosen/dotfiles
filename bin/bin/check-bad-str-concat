@@ -1,6 +1,26 @@
-#!/usr/bin/env pylaunch
+#!/usr/bin/env pip-run
 # Requirements:
 #   libcst
+"""
+check-bad-str-concat checks for two different flavors of string concatenation which are
+allowed by the `black` formatter and other linting tools, but are either unnecessary or
+potentially confusing.
+
+E100: unnecessary string concat
+    x = "foo " "bar"
+
+E101: unparenthesized multiline string concat in keyword arg
+    foo(
+        bar="alpha "
+        "beta"
+    )
+
+E102: unparenthesized multiline string concat in dict value
+    {
+        "foo": "alpha "
+        "beta"
+    }
+"""
 import argparse
 import glob
 import os
@@ -9,6 +29,12 @@ import sys
 
 import libcst
 import libcst.matchers
+
+ERROR_MAP = {
+    "E100": "unnecessary string concat",
+    "E101": "unparenthesized multiline string concat in keyword arg",
+    "E102": "unparenthesized multiline string concat in dict value",
+}
 
 
 def is_python(filename: str) -> bool:
@@ -43,13 +69,19 @@ def all_py_filenames(files, use_git_ls):
         yield from glob.glob("**/*.py", recursive=True)
 
 
-class AdjacentStringCollector(libcst.CSTVisitor):
+class ErrorCollector(libcst.CSTVisitor):
     METADATA_DEPENDENCIES = (libcst.metadata.PositionProvider,)
 
     def __init__(self):
-        self.bad_linenos: set[int] = set()
+        self.errors: set[tuple[int, str]] = set()
 
     def visit_ConcatenatedString(self, node: libcst.ConcatenatedString) -> None:
+        # check for 'unnecessary string concat' situations
+        # e.g.
+        #   x = "foo " "bar"
+        #
+        # these are easily introduced when strings change in length and `black` is run
+        # also common when `black` runs for the first time on a project
         if libcst.matchers.matches(
             node.whitespace_between, libcst.matchers.SimpleWhitespace()
         ):
@@ -57,20 +89,63 @@ class AdjacentStringCollector(libcst.CSTVisitor):
                 lpos = self.get_metadata(
                     libcst.metadata.PositionProvider, node.left
                 ).start
-                self.bad_linenos.add(lpos.line)
+                self.errors.add((lpos.line, "E100"))
+
+    def visit_Call(self, node: libcst.Call) -> None:
+        # check for 'unparenthesized multiline string concat in keyword arg'
+        # inside of function call sites
+        #
+        # the scenario here is that the string concat happens across multiple
+        # lines, but without parenthesization
+        # with a keyword argument getting the value, this is valid but results
+        # in a string with different physical indentation levels in the file
+        # e.g.
+        #   foo(
+        #       bar="alpha "
+        #       "beta"
+        #   )
+        #
+        # a classic case where this arises naturally is `help=...` for
+        # argparse and click, where the help string is often slightly too long
+        # for a single line, and easy to "break in two" without adding parens to
+        # force the whole block to indent
+        for arg in node.args:
+            if not arg.keyword:
+                continue
+
+            value = arg.value
+            if not isinstance(value, libcst.ConcatenatedString):
+                continue
+            # A left parenthesis exists. Therefore, the string is parenthesized.
+            if value.lpar:
+                continue
+
+            lpos = self.get_metadata(libcst.metadata.PositionProvider, value.left).start
+            self.errors.add((lpos.line, "E101"))
+
+    def visit_DictElement(self, node: libcst.DictElement) -> None:
+        value = node.value
+        if not isinstance(value, libcst.ConcatenatedString):
+            return
+        # A left parenthesis exists. Therefore, the string is parenthesized.
+        if value.lpar:
+            return
+
+        lpos = self.get_metadata(libcst.metadata.PositionProvider, value.left).start
+        self.errors.add((lpos.line, "E102"))
 
 
 def check_file(filename) -> bool:
     print(f"checking {filename}")
-    visitor = AdjacentStringCollector()
+    visitor = ErrorCollector()
     with open(filename) as fp:
         tree = libcst.parse_module(fp.read())
     wrapper = libcst.MetadataWrapper(tree)
     wrapper.visit(visitor)
-    bad_lines = sorted(visitor.bad_linenos)
-    if bad_lines:
-        for lineno in bad_lines:
-            print(f"{filename}:{lineno}: unnecessary string concat")
+    errors = sorted(visitor.errors)
+    if errors:
+        for lineno, code in errors:
+            print(f"{filename}:{lineno}: {ERROR_MAP[code]} ({code})")
         return False
     return True
 
@@ -100,4 +175,4 @@ if __name__ == "__main__":
     main()
 
 
-# vim ft=python
+# vim: ft=python
