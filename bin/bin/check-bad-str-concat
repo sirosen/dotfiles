@@ -135,8 +135,9 @@ class ErrorCollector(libcst.CSTVisitor):
         self.errors.add((lpos.line, "E102"))
 
 
-def check_file(filename) -> bool:
-    print(f"checking {filename}")
+def check_file(filename: str, *, quiet: bool) -> bool:
+    if not quiet:
+        print(f"checking {filename}")
     visitor = ErrorCollector()
     with open(filename) as fp:
         tree = libcst.parse_module(fp.read())
@@ -155,6 +156,12 @@ def main():
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="reduce output verbosity to errors-only",
+    )
+    parser.add_argument(
         "--use-git-ls", action="store_true", help="find python files from git-ls-files"
     )
     parser.add_argument("files", nargs="*", help="default: all python files")
@@ -164,7 +171,7 @@ def main():
 
     success = True
     for filename in all_py_filenames(args.files, args.use_git_ls):
-        success = check_file(filename) and success
+        success = check_file(filename, quiet=args.quiet) and success
 
     if not success:
         sys.exit(1)
