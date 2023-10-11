@@ -85,6 +85,8 @@ precmd () {
           pre_line="$(_prelineadd "$pre_line" "aws:$AWS_PROFILE" --fg orange --bold)"
         fi
         if [ -n "$VIRTUAL_ENV" ]; then
+          # TODO: pull up pyenv.cfg and parse out the 'prompt' variable
+          # if parsing fails, fallback to the current value
           pre_line="$(_prelineadd "$pre_line" "venv:$VIRTUAL_ENV" --fg yellow)"
         fi
         if [ -n "$GLOBUS_SDK_ENVIRONMENT" ]; then

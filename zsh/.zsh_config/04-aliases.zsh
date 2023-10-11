@@ -3,8 +3,6 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 
 # git aliases
-alias g='git'
-compdef g=git
 alias gst='git status'
 compdef _git gst=git-status
 alias gm='git merge'

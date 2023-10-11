@@ -3,11 +3,13 @@
     name = Stephen Rosen
     signingkey = FC694E40DC03A8B702D96372CF7E843C41E814C9
 [push]
-	default = simple
+    autoSetupRemote = true
+[remote]
+    pushDefault = origin
 [pull]
 	ff = only
 [core]
-	excludesfile = /home/sirosen/.gitignore_global
+	excludesfile = ~/.gitignore_global
 [alias]
     tree = log --graph --decorate --all
     sc = "!./etc/modify-adoc.py CHANGELOG.adoc; git add CHANGELOG.adoc; git commit -v"
