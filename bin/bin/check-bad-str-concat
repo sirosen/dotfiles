@@ -20,6 +20,18 @@ E102: unparenthesized multiline string concat in dict value
         "foo": "alpha "
         "beta"
     }
+
+E103: unparenthesized multiline string concat in collection type
+    x = (  # a tuple
+        "alpha "
+        "beta",
+        "gamma"
+    )
+    x = {  # or a set
+        "alpha "
+        "beta",
+        "gamma"
+    }
 """
 import argparse
 import glob
@@ -35,6 +47,7 @@ ERROR_MAP = {
     "E100": "unnecessary string concat",
     "E101": "unparenthesized multiline string concat in keyword arg",
     "E102": "unparenthesized multiline string concat in dict value",
+    "E103": "unparenthesized multiline string concat in collection type",
 }
 
 
@@ -95,13 +108,13 @@ class ErrorCollector(libcst.CSTVisitor):
         # these are easily introduced when strings change in length and `black` is run
         # also common when `black` runs for the first time on a project
         if libcst.matchers.matches(
-            node.whitespace_between, libcst.matchers.SimpleWhitespace()
+            node.whitespace_between,
+            libcst.matchers.SimpleWhitespace(
+                value=libcst.matchers.MatchIfTrue(lambda x: "\n" not in x)
+            ),
         ):
-            if "\n" not in node.whitespace_between.value:
-                lpos = self.get_metadata(
-                    libcst.metadata.PositionProvider, node.left
-                ).start
-                self.errors.add((lpos.line, "E100"))
+            lpos = self.get_metadata(libcst.metadata.PositionProvider, node.left).start
+            self.errors.add((lpos.line, "E100"))
 
     def visit_Call(self, node: libcst.Call) -> None:
         # check for 'unparenthesized multiline string concat in keyword arg'
@@ -126,25 +139,62 @@ class ErrorCollector(libcst.CSTVisitor):
                 continue
 
             value = arg.value
-            if not isinstance(value, libcst.ConcatenatedString):
-                continue
-            # A left parenthesis exists. Therefore, the string is parenthesized.
-            if value.lpar:
-                continue
-
-            lpos = self.get_metadata(libcst.metadata.PositionProvider, value.left).start
-            self.errors.add((lpos.line, "E101"))
+            if is_unparenthesized_multiline_concatenated_string(value):
+                lpos = self.get_metadata(
+                    libcst.metadata.PositionProvider, value.left
+                ).start
+                self.errors.add((lpos.line, "E101"))
 
     def visit_DictElement(self, node: libcst.DictElement) -> None:
         value = node.value
-        if not isinstance(value, libcst.ConcatenatedString):
-            return
-        # A left parenthesis exists. Therefore, the string is parenthesized.
-        if value.lpar:
-            return
+        if is_unparenthesized_multiline_concatenated_string(value):
+            lpos = self.get_metadata(libcst.metadata.PositionProvider, value.left).start
+            self.errors.add((lpos.line, "E102"))
 
-        lpos = self.get_metadata(libcst.metadata.PositionProvider, value.left).start
-        self.errors.add((lpos.line, "E102"))
+    def visit_Tuple(self, node: libcst.Tuple) -> None:
+        self._check_e103(node)
+
+    def visit_List(self, node: libcst.List) -> None:
+        self._check_e103(node)
+
+    def visit_Set(self, node: libcst.Set) -> None:
+        self._check_e103(node)
+
+    def _check_e103(self, node: libcst.Tuple | libcst.List | libcst.Set) -> None:
+        for element in node.elements:
+            if libcst.matchers.matches(
+                element,
+                libcst.matchers.Element(
+                    value=unparenthesized_multiline_concatenated_string_matcher()
+                ),
+            ):
+                lpos = self.get_metadata(
+                    libcst.metadata.PositionProvider, element.value.left
+                ).start
+                self.errors.add((lpos.line, "E103"))
+
+
+def is_unparenthesized_multiline_concatenated_string(node: libcst.BaseElement) -> bool:
+    return libcst.matchers.matches(
+        node, unparenthesized_multiline_concatenated_string_matcher()
+    )
+
+
+def unparenthesized_multiline_concatenated_string_matcher() -> (
+    libcst.matchers.BaseExpression
+):
+    return libcst.matchers.ConcatenatedString(
+        whitespace_between=(
+            libcst.matchers.SimpleWhitespace(
+                value=libcst.matchers.MatchIfTrue(lambda x: "\n" in x)
+            )
+            | libcst.matchers.ParenthesizedWhitespace()
+        ),
+        # empty list means that there are no parens
+        # because `lpar` and `rpar` are `Sequence[Paren]` types
+        lpar=[],
+        rpar=[],
+    )
 
 
 def all_py_filenames(files, use_git_ls):
