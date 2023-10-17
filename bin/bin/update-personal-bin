@@ -13,6 +13,7 @@ YQ_VERSION="4.35.1"
 KUBECTL_VERSION="1.24.2"
 HELM_VERSION="3.9.0"
 DOCKER_COMPOSE_VERSION="2.14.2"
+TURBOLIFT_VERSION="2.2.0"
 
 print_usage () {
   echo "USAGE: update-personal-bin [-h|--help] [--verbose] [--npm] [--python] [--binary] [--all]"
@@ -237,6 +238,18 @@ if [ $do_binary -eq 1 ]; then
     vecho "docker-compose install done"
   fi
   cp "docker-compose-$DOCKER_COMPOSE_VERSION" docker-compose
+
+  if [ ! -f "turbolift-$TURBOLIFT_VERSION" ]; then
+    vecho "turbolift v$TURBOLIFT_VERSION detected missing, will install"
+    tmpdir="$(mktemp -d)"
+    curl -LsSf -m 60 -o "$tmpdir/turbolift-v$TURBOLIFT_VERSION.tar.gz" \
+      "https://github.com/Skyscanner/turbolift/releases/download/${TURBOLIFT_VERSION}/turbolift_${TURBOLIFT_VERSION}_Linux_x86_64.tar.gz"
+    tar -xzf "$tmpdir/turbolift-v$TURBOLIFT_VERSION.tar.gz" -C "$tmpdir"
+    mv "$tmpdir/turbolift" "turbolift-$TURBOLIFT_VERSION"
+    rm -r "$tmpdir"
+    cp "turbolift-$TURBOLIFT_VERSION" turbolift
+    vecho "turbolift install done"
+  fi
 else
   vecho "no"
 fi
