@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 
 VIM_VERSION="9.0.1885"
 FNM_VERSION="1.33.1"
-SHFMT_VERSION="3.7.0"
+SHFMT_VERSION="3.8.0"
 SHELLCHECK_VERSION="0.9.0"
 CHEAT_VERSION='4.2.2'
 GH_VERSION="2.29.0"
@@ -168,7 +168,7 @@ if [ $do_binary -eq 1 ]; then
   if [ ! -f "shfmt-$SHFMT_VERSION" ]; then
     vecho "shfmt v$SHFMT_VERSION detected missing, will install"
     curl -LsSf -m 60 -o "shfmt-$SHFMT_VERSION" \
-      https://github.com/mvdan/sh/releases/download/v3.2.2/shfmt_v3.2.2_linux_amd64
+      "https://github.com/mvdan/sh/releases/download/v${SHFMT_VERSION}/shfmt_v${SHFMT_VERSION}_linux_amd64"
     chmod +x "shfmt-$SHFMT_VERSION"
     vecho "shfmt install done"
   fi
