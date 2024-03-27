@@ -4,8 +4,6 @@
     signingkey = FC694E40DC03A8B702D96372CF7E843C41E814C9
 [push]
     autoSetupRemote = true
-[remote]
-    pushDefault = origin
 [pull]
 	ff = only
 [core]

@@ -57,6 +57,7 @@ if isdirectory($HOME.'/.vim/bundle/vundle')
   Plugin 'editorconfig/editorconfig-vim'
   " Git plugins
   Plugin 'tpope/vim-fugitive'
+  Plugin 'rhysd/git-messenger.vim'
 
   " Utility plugins
   Plugin 'vim-airline/vim-airline'
@@ -74,6 +75,8 @@ let g:ycm_global_ycm_extra_conf = $HOME.'/.ycm_global_extra_conf.py'
 let g:vim_markdown_folding_disabled=1
 let g:vim_json_syntax_conceal = 0
 let g:EditorConfig_exclude_patterns = ['fugitive://.*']
+let g:git_messenger_no_default_mappings = v:true
+let g:git_messenger_always_into_popup = v:true
 
 " colors
 set termguicolors
@@ -87,7 +90,7 @@ let g:ale_fixers = {'*': [], 'python': ['isort', 'black'], 'json': ['jq'], 'rust
 " isort fails to load pyproject conf when handling stdin without this
 "   https://github.com/dense-analysis/ale/issues/2885
 let g:ale_python_isort_options = '--settings-path .'
-let g:ale_linters = {'*': [], 'python': ['flake8'], 'json': ['jsonlint'], 'rust': ['analyzer']}
+let g:ale_linters = {'*': [], 'python': ['flake8', 'slyp'], 'json': ['jsonlint'], 'rust': ['analyzer'], 'sh': ['shellcheck']}
 let g:ale_virtualtext_cursor = 'disabled'
 
 " airline config, including  use of ALE
@@ -104,7 +107,12 @@ hi ALEStyleError guibg=yellow
 
 
 function UseRuffInALE ()
-  let b:ale_linters = {'python': ['ruff']}
+  let g:ale_linters = {'python': ['ruff']}
+  let g:ale_fixers = {'python': ['ruff_format']}
+  "let g:ale_python_ruff_change_directory = 0
+  let g:ale_python_ruff_executable = 'ruff'
+  let g:ale_python_ruff_options = '--no-fix'
+  "let g:ale_python_ruff_use_global = 0
 endfunction
 
 function DisablePyIsort ()
@@ -118,6 +126,13 @@ endfunction
 function DisableAutoformat ()
   let b:ale_fixers = {}
 endfunction
+
+function! SlypFix(buffer) abort
+    return {
+    \   'command': 'slyp --only=fix -'
+    \}
+endfunction
+execute ale#fix#registry#Add('slyp', 'SlypFix', ['python'], 'run slyp for python (fixer)')
 
 
 " allow project-specific 'vimrc'-like config, but without dangerous exrc usage
@@ -209,6 +224,9 @@ augroup END
 " default leader=\
 nmap <silent> <leader>n :ALENext<cr>
 nmap <silent> <leader>f :ALEFix<cr>
+" define a nice way to run slyp on the current buffer via ale
+nmap <silent> <leader>slyp :ALEFix slyp<cr>
+nmap <silent> <leader>blame :GitMessenger<cr>
 
 if v:version >= 900
   " copilot keybindings
@@ -220,6 +238,3 @@ else
   nmap <leader>cf :YcmCompleter GoToDefinition<cr>
   nmap <leader>cc :YcmCompleter GoToDefinitionElseDeclaration<cr>
 endif
-
-" define a nice way to run shfmt
-command ShFmt %!shfmt -ci -sr -i 2
