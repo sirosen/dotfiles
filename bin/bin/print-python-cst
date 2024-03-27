@@ -1,0 +1,20 @@
+#!/usr/bin/env pip-run
+# Requirements:
+#   libcst
+import importlib.metadata
+import os
+import sys
+
+import libcst
+
+if len(sys.argv) != 2:
+    print(f"Usage: {sys.argv[0]} <python_file>")
+    sys.exit(2)
+
+if os.getenv("PRINTCST_DEBUG"):
+    print("libcst version:", importlib.metadata.version("libcst"))
+
+with open(sys.argv[1], "rb") as f:
+    print(libcst.parse_module(f.read()))
+
+# vim: ft=python

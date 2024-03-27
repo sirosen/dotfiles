@@ -1,0 +1,40 @@
+#!/bin/bash
+# credit and thanks to my coworkers at Globus for working this out
+
+set -euo pipefail
+
+ZOOM_DEB_NAME="zoom_amd64.deb"
+ZOOM_DEB_URL="https://zoom.us/client/latest/$ZOOM_DEB_NAME"
+cd "/tmp"
+
+curl -LOs "$ZOOM_DEB_URL"
+
+DOWNLOADED_VERSION="$(dpkg -f $ZOOM_DEB_NAME version)"
+
+set +e
+DPKG_INFO="$(dpkg -s zoom 2>/dev/null)"
+# shellcheck disable=SC2181
+rc="$?"
+set -e
+
+if [ "$rc" -ne 0 ]; then
+  INSTALLED_VERSION="NULL"
+  echo "Zoom not installed; installing"
+else
+  if [ "$(grep '^Status: install ok' <<< "$DPKG_INFO")" = "" ]; then
+    echo "Zoom install status may be bad; will abort"
+    echo
+    echo "dpkg info:"
+    echo "$DPKG_INFO"
+    exit 1
+  fi
+  INSTALLED_VERSION="$(awk '/^Version:/{print $2}' <<< "$DPKG_INFO")"
+fi
+
+if [ "$INSTALLED_VERSION" = "$DOWNLOADED_VERSION" ]; then
+  echo "Zoom up to date (version: $INSTALLED_VERSION)"
+  exit 0
+fi
+
+echo "Zoom out of date (installed: $INSTALLED_VERSION, downloaded: $DOWNLOADED_VERSION)"
+sudo dpkg -i "$ZOOM_DEB_NAME"
