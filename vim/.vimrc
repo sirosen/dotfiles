@@ -1,6 +1,10 @@
 set nomodeline "patch over a vuln
 set nocompatible "Use vim mode
 
+" set vim to use the py3 installed via pyenv
+set pythonthreehome=/home/sirosen/.pyenv/versions/3.11.9
+set pythonthreedll=/home/sirosen/.pyenv/versions/3.11.9/lib/libpython3.11.so.1.0
+
 " backspace options
 set backspace=indent,eol,start
 " Soft tabs, 4-ist mode
@@ -37,9 +41,8 @@ if isdirectory($HOME.'/.vim/bundle/vundle')
   " Python project plugins and completion
   if v:version >= 900
     Plugin 'github/copilot.vim'
-  else
-    Plugin 'ycm-core/YouCompleteMe'
   endif
+  Plugin 'ycm-core/YouCompleteMe'
 
   " File-Type Plugins
   Plugin 'plasticboy/vim-markdown'
@@ -57,7 +60,7 @@ if isdirectory($HOME.'/.vim/bundle/vundle')
   Plugin 'editorconfig/editorconfig-vim'
   " Git plugins
   Plugin 'tpope/vim-fugitive'
-  Plugin 'rhysd/git-messenger.vim'
+  " Plugin 'rhysd/git-messenger.vim'
 
   " Utility plugins
   Plugin 'vim-airline/vim-airline'
@@ -75,8 +78,8 @@ let g:ycm_global_ycm_extra_conf = $HOME.'/.ycm_global_extra_conf.py'
 let g:vim_markdown_folding_disabled=1
 let g:vim_json_syntax_conceal = 0
 let g:EditorConfig_exclude_patterns = ['fugitive://.*']
-let g:git_messenger_no_default_mappings = v:true
-let g:git_messenger_always_into_popup = v:true
+" let g:git_messenger_no_default_mappings = v:true
+" let g:git_messenger_always_into_popup = v:true
 
 " colors
 set termguicolors
@@ -84,6 +87,10 @@ set termguicolors
 set background=dark
 colorscheme gruvbox
 hi Normal guibg=NONE ctermbg=NONE
+
+" Copilot config
+" let g:copilot_filetypes = { '*': v:false }
+let g:copilot_no_tab_map = v:true
 
 " ALE conf
 let g:ale_fixers = {'*': [], 'python': ['isort', 'black'], 'json': ['jq'], 'rust': ['rustfmt']}
@@ -217,6 +224,7 @@ augroup END
 augroup ag_bufnew
   au!
   autocmd BufNewFile,BufRead * :call LoadMyVimConfig()
+  autocmd BufNewFile,BufRead * :Copilot disable
 augroup END
 
 
@@ -226,15 +234,16 @@ nmap <silent> <leader>n :ALENext<cr>
 nmap <silent> <leader>f :ALEFix<cr>
 " define a nice way to run slyp on the current buffer via ale
 nmap <silent> <leader>slyp :ALEFix slyp<cr>
-nmap <silent> <leader>blame :GitMessenger<cr>
+nmap <silent> <leader>blame :Git blame<cr>
 
+" YCM keybindings
+nmap <leader>cl :YcmCompleter GoToDeclaration<cr>
+nmap <leader>cf :YcmCompleter GoToDefinition<cr>
+nmap <leader>cc :YcmCompleter GoToDefinitionElseDeclaration<cr>
+
+" copilot keybindings
 if v:version >= 900
-  " copilot keybindings
+  imap <silent><script><expr> <C-n> copilot#Accept("\<CR>")
   inoremap <C-l> <Plug>(copilot-next)
   inoremap <C-h> <Plug>(copilot-previous)
-else
-  " YCM keybindings
-  nmap <leader>cl :YcmCompleter GoToDeclaration<cr>
-  nmap <leader>cf :YcmCompleter GoToDefinition<cr>
-  nmap <leader>cc :YcmCompleter GoToDefinitionElseDeclaration<cr>
 endif
