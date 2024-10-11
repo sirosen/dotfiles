@@ -26,19 +26,23 @@ def from_utc(s: str, tz: datetime.tzinfo) -> str:
         dt = datetime.datetime.fromisoformat(s)
     except ValueError:
         dt = datetime.datetime.strptime(s, "%H:%M")
+        dt = dt.replace(tzinfo=datetime.timezone.utc)
         outformat = "%H:%M"
 
-    if dt.tzinfo is not None:
-        raise ValueError("Cannot convert from UTC with a timezone")
+    if dt.tzinfo is not None and dt.tzinfo != datetime.timezone.utc:
+        raise ValueError("Cannot convert from UTC with a timezone (except UTC)")
+
     if outformat == "isoformat":
         return dt.astimezone(tz=tz).isoformat()
     return dt.astimezone(tz=tz).strftime(outformat)
 
 
 def parse_offset(o: str) -> datetime.tzinfo:
-    if o in ("EDT", "EST"):
+    if o == "EDT":
+        return datetime.timezone(datetime.timedelta(hours=-4))
+    if o in ("EST", "CDT"):
         return datetime.timezone(datetime.timedelta(hours=-5))
-    if o in ("CDT", "CST"):
+    elif o == "CST":
         return datetime.timezone(datetime.timedelta(hours=-6))
 
     try:
@@ -56,7 +60,10 @@ def main():
     parser.add_argument("INPUT_TIME")
     parser.add_argument("-o", "--offset", default="-5")
     parser.add_argument(
-        "--conversion", choices=["to_utc", "from_utc"], default="to_utc"
+        "--conversion",
+        choices=["to_utc", "from_utc"],
+        default="from_utc",
+        help="Conversion direction. Default: from_utc",
     )
     args = parser.parse_args()
 
