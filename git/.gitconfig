@@ -10,13 +10,14 @@
 	excludesfile = ~/.gitignore_global
 [alias]
     tree = log --graph --decorate --all
-    sc = "!./etc/modify-adoc.py CHANGELOG.adoc; git add CHANGELOG.adoc; git commit -v"
+    unstage = restore --staged .
+    forget = checkout -- .
+    pr-nonews = "!gh pr create --label no-news-is-good-news"
     logdiff = "!f () { \
       base=\"$1\"; \
       [ -n \"$base\" ] || base=main; \
       git diff HEAD $(git merge-base HEAD \"$base\") > logdiff.diff ; \
     }; f"
-    pr-nonews = "!gh pr create --label no-news-is-good-news"
 [init]
 	defaultBranch = main
 [blame]
