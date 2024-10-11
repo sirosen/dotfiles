@@ -1,6 +1,7 @@
-#!/usr/bin/env pip-run
-# Requirements:
-#   libcst
+#!/usr/bin/env pipx-run
+# /// script
+# dependencies = ["libcst"]
+# ///
 import importlib.metadata
 import os
 import sys
