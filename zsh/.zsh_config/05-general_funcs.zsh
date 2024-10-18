@@ -19,6 +19,20 @@ venv() {
   fi
 }
 
+venv-runtime () {
+  if [ ! -d ".venv" ]; then
+    python -m venv .venv
+    source .venv/bin/activate
+    pip install dependency-groups
+    .venv/bin/pip-install-dependency-groups runtime
+    # reactivate
+    deactivate
+    source .venv/bin/activate
+  else
+    source .venv/bin/activate
+  fi
+}
+
 venv-activate() {
     source "$1"/bin/activate
 }
