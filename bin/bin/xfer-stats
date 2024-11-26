@@ -1,6 +1,7 @@
-#!/usr/bin/env pylaunch
-# Requirements:
-#   requests
+#!/usr/bin/env pipx-run
+# /// script
+# dependencies = ["requests"]
+# ///
 """
 {
     "new": {
@@ -39,6 +40,7 @@ def bytes_per_second(data):
 def main():
     print("= Globus Transfer Stats =")
     data = requests.get(URL).json()
+    files_xfer = data["new"]["files"]
     bytes_xfer = data["new"]["bytes"]
     kb_xfer = bytes_xfer / 1024  # kilo
     mb_xfer = kb_xfer / 1024  # mega
@@ -49,6 +51,7 @@ def main():
     print(f"| {eb_xfer:.2f} Exabytes transferred (total)")
     print("|")
     print(f"| >> total = {tb_xfer:,.2f} TB")
+    print(f"| >> files = {files_xfer}")
     bytes_per_s = bytes_per_second(data)
     kb_per_s = bytes_per_s / 1024
     mb_per_s = kb_per_s / 1024
