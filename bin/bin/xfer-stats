@@ -51,7 +51,7 @@ def main():
     print(f"| {eb_xfer:.2f} Exabytes transferred (total)")
     print("|")
     print(f"| >> total = {tb_xfer:,.2f} TB")
-    print(f"| >> files = {files_xfer}")
+    print(f"| >> files = {files_xfer:,}")
     bytes_per_s = bytes_per_second(data)
     kb_per_s = bytes_per_s / 1024
     mb_per_s = kb_per_s / 1024
