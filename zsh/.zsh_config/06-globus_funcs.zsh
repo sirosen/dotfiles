@@ -120,7 +120,7 @@ globus-username-to-urn () {
 
 # initialize shlibload
 if type globus-shlibload > /dev/null; then
-  eval "$(globus-shlibload --completions sdk flows timer)"
+  eval "$(globus-shlibload --completions sdk search flows timers)"
 
   # shlibload-sourced completers
   compdef _globus_env_complete get-flows-rds-cxn
