@@ -87,6 +87,7 @@ set termguicolors
 set background=dark
 colorscheme gruvbox
 hi Normal guibg=NONE ctermbg=NONE
+let g:csv_default_delim=','
 
 " Copilot config
 " let g:copilot_filetypes = { '*': v:false }
