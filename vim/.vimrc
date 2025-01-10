@@ -42,7 +42,8 @@ if isdirectory($HOME.'/.vim/bundle/vundle')
   if v:version >= 900
     Plugin 'github/copilot.vim'
   endif
-  Plugin 'ycm-core/YouCompleteMe'
+  Plugin 'davidhalter/jedi-vim'
+  " Plugin 'ycm-core/YouCompleteMe'
 
   " File-Type Plugins
   Plugin 'plasticboy/vim-markdown'
@@ -237,10 +238,14 @@ nmap <silent> <leader>f :ALEFix<cr>
 nmap <silent> <leader>slyp :ALEFix slyp<cr>
 nmap <silent> <leader>blame :Git blame<cr>
 
+" vim-jedi settings
+" remap `usages` because it defaults to `\n` which conflicts with ALENext
+let g:jedi#usages_command = "<leader>u"
+
 " YCM keybindings
-nmap <leader>cl :YcmCompleter GoToDeclaration<cr>
-nmap <leader>cf :YcmCompleter GoToDefinition<cr>
-nmap <leader>cc :YcmCompleter GoToDefinitionElseDeclaration<cr>
+"nmap <leader>cl :YcmCompleter GoToDeclaration<cr>
+"nmap <leader>cf :YcmCompleter GoToDefinition<cr>
+"nmap <leader>cc :YcmCompleter GoToDefinitionElseDeclaration<cr>
 
 " copilot keybindings
 if v:version >= 900
