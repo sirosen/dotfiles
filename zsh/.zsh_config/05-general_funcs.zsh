@@ -6,7 +6,7 @@ set-tmux-title () {
 
 venv() {
   if [ ! -d ".venv" ]; then
-    python -m venv .venv
+    python -m venv --upgrade-deps .venv
     source .venv/bin/activate
     if [[ -f "setup.cfg" ]] || [[ -f "setup.py" ]] || [[ -f "pyproject.toml" ]]; then
       pip install -e .

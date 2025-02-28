@@ -39,9 +39,6 @@ if isdirectory($HOME.'/.vim/bundle/vundle')
   Plugin 'morhetz/gruvbox'
 
   " Python project plugins and completion
-  if v:version >= 900
-    Plugin 'github/copilot.vim'
-  endif
   Plugin 'davidhalter/jedi-vim'
   " Plugin 'ycm-core/YouCompleteMe'
 
@@ -90,16 +87,12 @@ colorscheme gruvbox
 hi Normal guibg=NONE ctermbg=NONE
 let g:csv_default_delim=','
 
-" Copilot config
-" let g:copilot_filetypes = { '*': v:false }
-let g:copilot_no_tab_map = v:true
-
 " ALE conf
 let g:ale_fixers = {'*': [], 'python': ['isort', 'black'], 'json': ['jq'], 'rust': ['rustfmt']}
 " isort fails to load pyproject conf when handling stdin without this
 "   https://github.com/dense-analysis/ale/issues/2885
 let g:ale_python_isort_options = '--settings-path .'
-let g:ale_linters = {'*': [], 'python': ['flake8', 'slyp'], 'json': ['jsonlint'], 'rust': ['analyzer'], 'sh': ['shellcheck']}
+let g:ale_linters = {'*': [], 'python': ['flake8'], 'json': ['jsonlint'], 'rust': ['analyzer'], 'sh': ['shellcheck']}
 let g:ale_virtualtext_cursor = 'disabled'
 
 " airline config, including  use of ALE
@@ -116,12 +109,8 @@ hi ALEStyleError guibg=yellow
 
 
 function UseRuffInALE ()
-  let g:ale_linters = {'python': ['ruff']}
-  let g:ale_fixers = {'python': ['ruff_format']}
-  "let g:ale_python_ruff_change_directory = 0
-  let g:ale_python_ruff_executable = 'ruff'
-  let g:ale_python_ruff_options = '--no-fix'
-  "let g:ale_python_ruff_use_global = 0
+  let b:ale_linters = {'python': ['ruff']}
+  let b:ale_fixers = {'python': ['ruff', 'ruff_format']}
 endfunction
 
 function DisablePyIsort ()
@@ -142,6 +131,10 @@ function! SlypFix(buffer) abort
     \}
 endfunction
 execute ale#fix#registry#Add('slyp', 'SlypFix', ['python'], 'run slyp for python (fixer)')
+
+function EnableSlyp ()
+    call add(g:ale_fixers["python"], 'slyp')
+endfunction
 
 
 " allow project-specific 'vimrc'-like config, but without dangerous exrc usage
@@ -226,7 +219,6 @@ augroup END
 augroup ag_bufnew
   au!
   autocmd BufNewFile,BufRead * :call LoadMyVimConfig()
-  autocmd BufNewFile,BufRead * :Copilot disable
 augroup END
 
 
@@ -235,12 +227,17 @@ augroup END
 nmap <silent> <leader>n :ALENext<cr>
 nmap <silent> <leader>f :ALEFix<cr>
 " define a nice way to run slyp on the current buffer via ale
-nmap <silent> <leader>slyp :ALEFix slyp<cr>
+nmap <silent> <leader>S :ALEFix slyp<cr>
 nmap <silent> <leader>blame :Git blame<cr>
 
 " vim-jedi settings
 " remap `usages` because it defaults to `\n` which conflicts with ALENext
 let g:jedi#usages_command = "<leader>u"
+let g:jedi#use_tabs_not_buffers = 1
+" find the project virtualenv if no virtualenv is activated
+if empty($VIRTUAL_ENV)
+  let g:jedi#environment_path = finddir("\.venv", expand('%:p:h') . ";")
+endif
 
 " YCM keybindings
 "nmap <leader>cl :YcmCompleter GoToDeclaration<cr>
