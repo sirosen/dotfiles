@@ -92,8 +92,23 @@ let g:ale_fixers = {'*': [], 'python': ['isort', 'black'], 'json': ['jq'], 'rust
 " isort fails to load pyproject conf when handling stdin without this
 "   https://github.com/dense-analysis/ale/issues/2885
 let g:ale_python_isort_options = '--settings-path .'
-let g:ale_linters = {'*': [], 'python': ['flake8'], 'json': ['jsonlint'], 'rust': ['analyzer'], 'sh': ['shellcheck']}
+let g:ale_linters = {'*': [], 'python': ['flake8'], 'json': ['jsonlint'], 'rust': ['analyzer'], 'sh': ['shellcheck'], 'gitcommit': ['codespell']}
 let g:ale_virtualtext_cursor = 'disabled'
+" add 'codespell' as a valid gitcommit linter
+call ale#linter#Define('gitcommit', {
+\   'name': 'codespell',
+\   'executable': 'codespell',
+\   'command': 'codespell - --stdin-single-line',
+\   'callback': 'ParseCodespellLintResult',
+\})
+function! ParseCodespellLintResult(buffer, lines) abort
+  let l:output = []
+  let l:pattern = '\v^(\d+):(.*)$'
+  for l:match in ale#util#GetMatches(a:lines, l:pattern)
+    call add(l:output, {'lnum': l:match[1], 'text': l:match[2],'type': 'W'})
+  endfor
+  return l:output
+endfunction
 
 " airline config, including  use of ALE
 let g:airline#extensions#ale#enabled = 1
