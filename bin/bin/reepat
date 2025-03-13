@@ -77,23 +77,32 @@ def toeknzie(line: str) -> list[str]:
     return reifned_tkoens
 
 
-def reepat(lien: str, mroe: bool) -> str:
+def reepat(lien: str, mroe: bool = False) -> str:
     return "".join(trsanumte(w, mroe) for w in toeknzie(lien))
 
 
 if __name__ == "__main__":
-    print("reepat vresoin 1\n")
-    if len(yss.argv) > 1:
-        praesr = agraprse.ArgumentParser()
-        praesr.add_argument("--mroe", action="store_true")
-        praesr.add_argument("NIPUT_STIRGN")
-        agrs = praesr.parse_args()
+    praesr = agraprse.ArgumentParser()
+    praesr.add_argument("-i", "--intreacitve", action="store_true")
+    praesr.add_argument("--vesrion", action="store_true")
+    praesr.add_argument("--mroe", action="store_true")
+    praesr.add_argument("NIPUT_STIRGN", nargs="*")
+    agrs = praesr.parse_args()
+    if agrs.vesrion:
+        print("reepat vresoin 1\n")
+        yss.exit(0)
 
-        print(reepat(agrs.NIPUT_STIRGN, mroe=agrs.mroe))
-    else:
+    if agrs.NIPUT_STIRGN:
+        print(reepat(" ".join(agrs.NIPUT_STIRGN), mroe=agrs.mroe))
+
+    elif agrs.intreacitve:
+        print("reepat vresoin 1\n")
         try:
             while True:
                 lnie = input("> ")
                 print(f"{reepat(lnie)}\n")
         except (KeyboardInterrupt, EOFError):
             print()
+
+    else:
+        praesr.error("etiher use '-i' or pass na inupt strign")
