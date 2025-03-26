@@ -23,6 +23,10 @@ def parse_line(line):
     data = [x.strip() for x in data.split(",")]
     pairs = []
     for d in data:
+        # skip "${lineno}->exit" and "${line1}->${line2}" items for now
+        if "->" in d:
+            continue
+
         pair = d.split("-")
         if len(pair) == 2:
             pairs.append(pair)
