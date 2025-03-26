@@ -48,3 +48,5 @@ turbolift
 turbolift-*
 terraform
 terraform-*
+nvim
+.nvim-*

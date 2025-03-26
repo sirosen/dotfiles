@@ -1,9 +1,14 @@
 set nomodeline "patch over a vuln
 set nocompatible "Use vim mode
 
-" set vim to use the py3 installed via pyenv
-set pythonthreehome=/home/sirosen/.pyenv/versions/3.11.9
-set pythonthreedll=/home/sirosen/.pyenv/versions/3.11.9/lib/libpython3.11.so.1.0
+if !has('nvim')
+  " set vim to use the py3 installed via pyenv
+  set pythonthreehome=/home/sirosen/.pyenv/versions/3.11.9
+  set pythonthreedll=/home/sirosen/.pyenv/versions/3.11.9/lib/libpython3.11.so.1.0
+else
+  " or set nvim to use the python venv with the pynvim package
+  let g:python3_host_prog = '/home/sirosen/bin/.nvim-venv/bin/python'
+endif
 
 " backspace options
 set backspace=indent,eol,start
@@ -14,7 +19,11 @@ set textwidth=79
 " incremental search for ease
 set incsearch
 " use undofiles and turn off swapfiles
-set undodir=~/.vim/undodir
+if has('nvim')
+  set undodir=~/.nvim/undodir
+else
+  set undodir=~/.vim/undodir
+endif
 set undofile
 set noswapfile
 " show line position

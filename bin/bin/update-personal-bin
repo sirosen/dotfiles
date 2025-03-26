@@ -3,6 +3,7 @@ set -e
 cd "$(dirname "$0")"
 
 VIM_VERSION="9.1.0443"
+NEOVIM_VERSION="0.10.4"
 FNM_VERSION="1.33.1"
 SHFMT_VERSION="3.8.0"
 SHELLCHECK_VERSION="0.9.0"
@@ -24,6 +25,20 @@ vecho () {
   if [ "$verbose" -eq 1 ]; then
     echo "$@"
   fi
+}
+
+run-pip-install () {
+  local add_args="-q"
+  if [ "$verbose" -eq 1 ]; then
+    add_args=""
+  fi
+  venv="$1"
+  shift 1
+  if [ ! -d "$venv" ]; then
+    python -m venv "$venv"
+  fi
+  # shellcheck disable=SC2086
+  $venv/bin/python -m pip install $add_args "$@"
 }
 
 # handle args
@@ -122,6 +137,20 @@ if [ $do_binary -eq 1 ]; then
     rm -f vim
     ln -s vim-$VIM_VERSION vim
     vecho "vim install done"
+  fi
+
+  if [ ! -d ".nvim-$NEOVIM_VERSION" ]; then
+    vecho "neovim v$NEOVIM_VERSION detected missing, will install"
+    curl -LsSf -m 60 \
+      "https://github.com/neovim/neovim/releases/download/v${NEOVIM_VERSION}/nvim-linux-x86_64.tar.gz" | \
+      tar -xz
+    mv nvim-linux-x86_64 ".nvim-$NEOVIM_VERSION"
+    ln -s .nvim-$NEOVIM_VERSION/bin/nvim nvim
+    vecho "neovim install done"
+  fi
+  if [ ! -d ".nvim-venv" ]; then
+    vecho "setting up pynvim venv"
+    run-pip-install .nvim-venv pynvim
   fi
 
   if [ ! -f "fnm-$FNM_VERSION" ]; then
