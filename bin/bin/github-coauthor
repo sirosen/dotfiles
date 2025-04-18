@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -eo pipefail
+
+username="$1"
+if [ -z "$username" ]; then
+    exit 1
+fi
+
+set -u
+
+response="$(curl -s "https://api.github.com/users/$username")"
+id="$(jq .id <<<"$response")"
+name="$(jq -r '.name // .login' <<< "$response")"
+printf "Co-authored-by: %s <%d+%s@users.noreply.github.com>\n" "$name" "$id" "$username"

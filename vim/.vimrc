@@ -225,6 +225,7 @@ function LoadMyVimConfig ()
   endif
 endfunction
 
+command -nargs=1 PasteCoauthor put =system('github-coauthor ' . <args>)
 
 augroup ag_filetype
   au!
