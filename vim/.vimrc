@@ -33,6 +33,11 @@ set laststatus=2
 " turn off netrw banner
 let g:netrw_banner = 0
 
+" terminal mode settings (nvim only)
+if has('nvim')
+  tnoremap <Esc> <C-\><C-n>
+endif
+
 if isdirectory($HOME.'/.vim/bundle/vundle')
   " turn off filetype during plugin setup
   filetype off
