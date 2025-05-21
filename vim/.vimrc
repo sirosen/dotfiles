@@ -75,6 +75,7 @@ if isdirectory($HOME.'/.vim/bundle/vundle')
   " Plugin 'rhysd/git-messenger.vim'
 
   " Utility plugins
+  Plugin 'ervandew/supertab'
   Plugin 'vim-airline/vim-airline'
   Plugin 'vim-airline/vim-airline-themes'
 
