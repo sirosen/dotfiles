@@ -1,6 +1,7 @@
-#!/usr/bin/env pylaunch
-# Requires:
-# boto3
+#!/usr/bin/env python
+# /// script
+# dependencies = ["boto3"]
+# ///
 """
 Tool for simple Route53 management.
 
@@ -26,8 +27,18 @@ Examples:
     gcsv5.sirosen.globuscs.info CNAME ec2-54-237-153-78.compute-1.amazonaws.com
 """
 import argparse
+import os
 import shlex
+import shutil
 import sys
+import typing as t
+
+if not os.getenv("SKIP_PIPX_REINVOKE"):
+    os.environ["SKIP_PIPX_REINVOKE"] = "1"
+    pipx_path = shutil.which("pipx")
+    os.execve(pipx_path, ["pipx", "run", __file__] + sys.argv[1:], os.environ)
+else:
+    del os.environ["SKIP_PIPX_REINVOKE"]
 
 import boto3
 
@@ -144,19 +155,18 @@ def _do_update(filename, client, hosted_zones):
 
     records = []
     existing_records = {}
-    with open(filename) as f:
-        for line in f:
-            if line.strip().startswith("#"):
-                continue
-            new_record = _parse_line(line)
-            key = (new_record.name, new_record.record_type)
-            if key in existing_records:
-                existing_records[key].add_value(new_record.values[0])
-                if existing_records[key].ttl is None:
-                    existing_records[key].ttl = new_record.ttl
-            else:
-                records.append(new_record)
-                existing_records[key] = new_record
+    for line in _lines_from_filename(filename):
+        if line.strip().startswith("#"):
+            continue
+        new_record = _parse_line(line)
+        key = (new_record.name, new_record.record_type)
+        if key in existing_records:
+            existing_records[key].add_value(new_record.values[0])
+            if existing_records[key].ttl is None:
+                existing_records[key].ttl = new_record.ttl
+        else:
+            records.append(new_record)
+            existing_records[key] = new_record
 
     update_batches = {}
     for record in records:
@@ -166,14 +176,24 @@ def _do_update(filename, client, hosted_zones):
         update_batches[match_domain].append(record)
 
     for domain, update_records in update_batches.items():
+        changes = [x.as_changeset() for x in update_records]
+        print("applying changes:", changes)
         res = client.change_resource_record_sets(
             HostedZoneId=hosted_zones[domain],
-            ChangeBatch={"Changes": [x.as_changeset() for x in update_records]},
+            ChangeBatch={"Changes": changes},
         )
         print(res)
 
     print("DONE!")
     sys.exit(0)
+
+
+def _lines_from_filename(filename: str) -> t.Iterable[str]:
+    if filename == "-":
+        yield from sys.stdin
+    else:
+        with open(filename) as fp:
+            yield from fp
 
 
 def main():
@@ -202,6 +222,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# vim: ft=python
