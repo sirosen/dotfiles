@@ -33,6 +33,9 @@ set laststatus=2
 " turn off netrw banner
 let g:netrw_banner = 0
 
+" turn off showmode because vim-airline will show it
+set noshowmode
+
 " terminal mode settings (nvim only)
 if has('nvim')
   tnoremap <Esc> <C-\><C-n>
@@ -265,6 +268,7 @@ nmap <silent> <leader>blame :Git blame<cr>
 " remap `usages` because it defaults to `\n` which conflicts with ALENext
 let g:jedi#usages_command = "<leader>u"
 let g:jedi#use_tabs_not_buffers = 1
+let g:jedi#show_call_signatures = "2"
 " find the project virtualenv if no virtualenv is activated
 if empty($VIRTUAL_ENV)
   let g:jedi#environment_path = finddir("\.venv", expand('%:p:h') . ";")
