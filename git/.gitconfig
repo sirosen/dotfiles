@@ -12,7 +12,10 @@
     tree = log --graph --decorate --all
     unstage = restore --staged .
     forget = checkout -- .
+    conflicts = diff --name-only --diff-filter=U
     pr-nonews = "!gh pr create --label no-news-is-good-news"
+    pr-v4 = "!gh pr create -B 4.x-dev"
+    pr-v4-nonews = "!gh pr create -B 4.x-dev --label no-news-is-good-news"
     logdiff = "!f () { \
       base=\"$1\"; \
       [ -n \"$base\" ] || base=main; \
