@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# versions are listed in installation order
+# but also in the order they should be written to `~/.pyenv/version
+DEFAULT_VERSIONS=(
+  "3.13.6"
+  "3.12.11"
+  "3.11.13"
+  "3.10.18"
+  "3.9.23"
+  "3.8.20"
+  "3.7.17"
+  "3.6.15"
+  "3.14.0rc1"
+  "pypy3.10"
+  "2.7.18"
+)
+
+tmpfile="$(mktemp)"
+cleanup() {
+  rm "$tmpfile"
+}
+trap cleanup EXIT
+
+print_usage () {
+  echo "USAGE: update-personal-bin [-h|--help] [--version VERSION]"
+}
+
+install_version() {
+  local python_version
+  python_version="$1"
+  echo "Installing Python: $python_version"
+  env \
+    PYTHON_CONFIGURE_OPTS='--enable-optimizations --with-lto' \
+    PYTHON_CFLAGS='-march=native -mtune=native' \
+    pyenv install "$python_version"
+  echo "$python_version" >> "$tmpfile"
+}
+
+version=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    "-h"|"--help")
+      print_usage
+      exit 0
+      ;;
+    "--version")
+      shift 1
+      if [ $# -eq 0 ]; then
+        print_usage
+        exit 2
+      fi
+      version="$1"
+      ;;
+    *)
+      print_usage
+      exit 2
+      ;;
+  esac
+  shift 1
+done
+
+if [ -n "$version" ]; then
+  install_version "$version"
+else
+  for python_version in "${DEFAULT_VERSIONS[@]}"; do
+    install_version "$python_version"
+  done
+fi
+
+echo "installed versions:"
+cat "$tmpfile"
