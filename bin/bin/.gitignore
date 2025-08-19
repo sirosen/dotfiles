@@ -1,52 +1,58 @@
 # npm install generated data
-package.json
-package-lock.json
+/package.json
+/package-lock.json
 
 # included git repos and such
-testssl.sh
-gti
+/testssl.sh
+/gti
 
 # vim 9 installation tree
-.vim9
+/.vim9
 
 ## tools & dirs downloaded by the personal tool updater script ##
+# binary build dirs
+/sedutil
 # python built venvs
-.venv-*
+/.venv-*
 # npm
-npm-packages
-openapi3-generator
-stylelint
-jsonlint
-lint-openapi
-spectral
-lighthouse
-gulp
+/npm-packages
+/openapi3-generator
+/stylelint
+/jsonlint
+/lint-openapi
+/spectral
+/lighthouse
+/gulp
 # platform binaries
-shfmt
-shfmt-*
-shellcheck
-shellcheck-*
-cheat
-cheat-*
-eksctl
-gh
-gh-*
-kubectl
-kubectl-*
-helm
-helm-*
-mlr
-fnm
-fnm-*
-vim
-vim-*
-docker-compose
-docker-compose-*
-yq
-yq-*
-turbolift
-turbolift-*
-terraform
-terraform-*
-nvim
-.nvim-*
+/shfmt
+/shfmt-*
+/shellcheck
+/shellcheck-*
+/cheat
+/cheat-*
+/eksctl
+/gh
+/gh-*
+/kubectl
+/kubectl-*
+/helm
+/helm-*
+/mlr
+/fnm
+/fnm-*
+/vim
+/vim-*
+/docker-compose
+/docker-compose-*
+/yq
+/yq-*
+/turbolift
+/turbolift-*
+/terraform
+/terraform-*
+/nvim
+/.nvim-*
+/zed
+/.zed
+/hx
+/.helix-*
