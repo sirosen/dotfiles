@@ -4,6 +4,7 @@ cd "$(dirname "$0")"
 
 VIM_VERSION="9.1.0443"
 NEOVIM_VERSION="0.11.3"
+HELIX_VERSION="25.07.1"
 FNM_VERSION="1.33.1"
 SHFMT_VERSION="3.8.0"
 SHELLCHECK_VERSION="0.9.0"
@@ -151,6 +152,26 @@ if [ $do_binary -eq 1 ]; then
   if [ ! -d ".nvim-venv" ]; then
     vecho "setting up pynvim venv"
     run-pip-install .nvim-venv pynvim
+  fi
+
+  if [ ! -f zed ]; then
+    vecho "zed detected missing, will install"
+    mkdir .zed
+    curl -LsSf -m 60 \
+      "https://zed.dev/api/releases/stable/latest/zed-linux-x86_64.tar.gz" | \
+      tar -xz -C .zed
+    # link the zed binary to ~/.local/bin (or another directory in your $PATH)
+    ln -s .zed/zed.app/bin/zed zed
+  fi
+
+  if [ ! -d ".helix-$HELIX_VERSION" ]; then
+    vecho "helix v$HELIX_VERSION detected missing, will install"
+    curl -LsSf -m 60 \
+      "https://github.com/helix-editor/helix/releases/download/${HELIX_VERSION}/helix-${HELIX_VERSION}-x86_64-linux.tar.xz" | \
+      tar -xJ
+    mv "helix-${HELIX_VERSION}-x86_64-linux" ".helix-${HELIX_VERSION}"
+    ln -s .helix-${HELIX_VERSION}/hx hx
+    vecho "helix install done"
   fi
 
   if [ ! -f "fnm-$FNM_VERSION" ]; then

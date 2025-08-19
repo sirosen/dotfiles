@@ -1,0 +1,15 @@
+[[language]]
+name = "python"
+text-width = 88
+rulers = [88]
+
+[language-server.pylsp.config.pylsp]
+# plugins.mypy.enabled = true
+# plugins.rope_completion.enabled = true
+# plugins.jedi_completion.enabled = false
+
+plugins.ruff.enabled = false
+plugins.black.enabled = true
+plugins.flake8.enabled = true
+
+plugins.jedi.extra_paths = ["./src"]

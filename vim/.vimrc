@@ -56,8 +56,9 @@ if isdirectory($HOME.'/.vim/bundle/vundle')
   Plugin 'morhetz/gruvbox'
 
   " Python project plugins and completion
-  Plugin 'davidhalter/jedi-vim'
+  " Plugin 'davidhalter/jedi-vim'
   " Plugin 'ycm-core/YouCompleteMe'
+  Plugin 'neovim/nvim-lspconfig'
 
   " File-Type Plugins
   Plugin 'plasticboy/vim-markdown'
@@ -266,22 +267,18 @@ nmap <silent> <leader>blame :Git blame<cr>
 
 " vim-jedi settings
 " remap `usages` because it defaults to `\n` which conflicts with ALENext
-let g:jedi#usages_command = "<leader>u"
-let g:jedi#use_tabs_not_buffers = 1
-let g:jedi#show_call_signatures = "2"
+"let g:jedi#usages_command = "<leader>u"
+"let g:jedi#use_tabs_not_buffers = 1
+"let g:jedi#show_call_signatures = "2"
 " find the project virtualenv if no virtualenv is activated
-if empty($VIRTUAL_ENV)
-  let g:jedi#environment_path = finddir("\.venv", expand('%:p:h') . ";")
-endif
+"if empty($VIRTUAL_ENV)
+"  let g:jedi#environment_path = finddir("\.venv", expand('%:p:h') . ";")
+"endif
 
 " YCM keybindings
 "nmap <leader>cl :YcmCompleter GoToDeclaration<cr>
 "nmap <leader>cf :YcmCompleter GoToDefinition<cr>
 "nmap <leader>cc :YcmCompleter GoToDefinitionElseDeclaration<cr>
 
-" copilot keybindings
-if v:version >= 900
-  imap <silent><script><expr> <C-n> copilot#Accept("\<CR>")
-  inoremap <C-l> <Plug>(copilot-next)
-  inoremap <C-h> <Plug>(copilot-previous)
-endif
+" enable pylsp config
+source ~/.config/nvim/pylsp.lua

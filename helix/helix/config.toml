@@ -1,0 +1,21 @@
+theme = "gruvbox"
+
+[editor]
+auto-pairs = false
+indent-heuristic = "tree-sitter"
+indent-guides.render = true
+
+[editor.inline-diagnostics]
+cursor-line = "error"
+
+[keys.normal]
+"A-u" = "switch_to_lowercase"
+"A-U" = "switch_to_uppercase"
+[keys.normal."\\"]
+r = ":reflow"
+
+[keys.select]
+"A-u" = "switch_to_lowercase"
+"A-U" = "switch_to_uppercase"
+[keys.select."\\"]
+r = ":reflow"

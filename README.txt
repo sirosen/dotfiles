@@ -17,3 +17,4 @@ cd into this directory (stow automatically targets the parent dir by default).
   stow git
   stow bin
   stow cheatsheets
+  stow helix ~/.config/

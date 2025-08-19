@@ -16,4 +16,4 @@ zstyle :compinstall filename '/home/sirosen/.zshrc'
 bindkey -M vicmd '?' history-incremental-search-backward
 
 # editor
-export EDITOR=nvim
+export EDITOR=hx
