@@ -9,6 +9,10 @@ fi
 
 set -u
 
+if [ "$username" = "-" ]; then
+    username="$(cat)"
+fi
+
 response="$(curl -s "https://api.github.com/users/$username")"
 id="$(jq .id <<<"$response")"
 name="$(jq -r '.name // .login' <<< "$response")"

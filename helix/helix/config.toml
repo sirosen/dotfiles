@@ -17,5 +17,7 @@ r = ":reflow"
 [keys.select]
 "A-u" = "switch_to_lowercase"
 "A-U" = "switch_to_uppercase"
+
+"A-g" = ":pipe github-coauthor -"
 [keys.select."\\"]
 r = ":reflow"
