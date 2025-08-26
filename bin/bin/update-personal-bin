@@ -17,6 +17,7 @@ HELM_VERSION="3.9.0"
 DOCKER_COMPOSE_VERSION="2.14.2"
 TURBOLIFT_VERSION="2.2.0"
 TERRAFORM_VERSION="1.7.5"
+VALE_VERSION="3.12.0"
 
 print_usage () {
   echo "USAGE: update-personal-bin [-h|--help] [--verbose] [--npm] [--python] [--binary] [--all]"
@@ -312,6 +313,18 @@ if [ $do_binary -eq 1 ]; then
     rm -r "$tmpdir"
     cp "terraform-$TERRAFORM_VERSION" terraform
     vecho "terraform install done"
+  fi
+
+  if [ ! -f vale-$VALE_VERSION ]; then
+    vecho "vale v$VALE_VERSION detected missing, will install"
+    tmpdir="$(mktemp -d)"
+    curl -LsSf -m 60 -o "$tmpdir/vale-v$VALE_VERSION.tar.gz" \
+      "https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
+    tar -xzf "$tmpdir/vale-v$VALE_VERSION.tar.gz" -C "$tmpdir"
+    mv "$tmpdir/vale" "vale-$VALE_VERSION"
+    rm -r "$tmpdir"
+    cp "vale-$VALE_VERSION" vale
+    vecho "vale install done"
   fi
 else
   vecho "no"
