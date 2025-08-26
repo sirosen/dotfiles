@@ -11,8 +11,14 @@ cursor-line = "error"
 [keys.normal]
 "A-u" = "switch_to_lowercase"
 "A-U" = "switch_to_uppercase"
+
 [keys.normal."\\"]
 r = ":reflow"
+
+# "\f" is "reformat" via pre-commit
+f = "@w\\<Cmd-f>\\<Cmd-r>"
+"Cmd-r" = ":reload"
+"Cmd-f" = ":sh pre-commit run --files %{buffer_name} > /dev/null || true"
 
 [keys.select]
 "A-u" = "switch_to_lowercase"
