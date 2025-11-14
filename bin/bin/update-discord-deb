@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -euo pipefail
+
+tmpdir="$(mktemp -d)"
+cleanup () {
+  rm -rf "$tmpdir"
+}
+trap cleanup EXIT
+
+cd "$tmpdir"
+curl -L 'https://discord.com/api/download/stable?platform=linux&format=deb' -o 'discord.deb'
+sudo dpkg -i discord.deb
