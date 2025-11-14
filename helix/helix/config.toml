@@ -15,10 +15,17 @@ cursor-line = "error"
 [keys.normal."\\"]
 r = ":reflow"
 
+# "\b" is "reformat" via black
+b = ["select_all", ":pipe black -q -", "goto_last_modification"]
+
 # "\f" is "reformat" via pre-commit
-f = "@w\\<Cmd-f>\\<Cmd-r>"
-"Cmd-r" = ":reload"
-"Cmd-f" = ":sh pre-commit run --files %{buffer_name} > /dev/null || true"
+f = [
+  ":w",
+  # using `:sh` to execute seems to block, and the reload fails to run
+  # nesting in an echo "forces" it
+  ":echo %sh{pre-commit run --files %{buffer_name} > /dev/null || true}",
+  ":reload",
+]
 
 [keys.select]
 "A-u" = "switch_to_lowercase"

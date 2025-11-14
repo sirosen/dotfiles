@@ -1,21 +1,22 @@
 #!/usr/bin/env python
 """
-Convert ReST to MD.
+Convert ReST and sphinx-issues syntaxes to GitHub-flavored Markdown, and print the
+results.
+
+Takes the changelog data from stdin.
 """
 
-import argparse
 import re
-import sys
 import typing as t
 
-H2_RST_PATTERN = re.compile(r"-+")
-H3_RST_PATTERN = re.compile(r"~+")
-
-RST_LINK_PATTERN = re.compile(r"`([^`]+) <([^`]+)>`_")
+H2_RST_PATTERN = re.compile(r"=+")
+H3_RST_PATTERN = re.compile(r"-+")
 
 SPHINX_ISSUES_PR_PATTERN = re.compile(r":pr:`(\d+)`")
 SPHINX_ISSUES_ISSUE_PATTERN = re.compile(r":issue:`(\d+)`")
 SPHINX_ISSUES_USER_PATTERN = re.compile(r":user:`([^`]+)`")
+LINK_PATTERN = re.compile(r"`([^<]+) <([^>]+)>`_")
+INLINE_CODE_PATTERN = re.compile(r"``([^`]+)``")
 
 
 def convert_rst_to_md(lines: list[str]) -> t.Iterator[str]:
@@ -39,24 +40,17 @@ def convert_rst_to_md(lines: list[str]) -> t.Iterator[str]:
         updated = SPHINX_ISSUES_PR_PATTERN.sub(r"#\1", updated)
         updated = SPHINX_ISSUES_ISSUE_PATTERN.sub(r"#\1", updated)
         updated = SPHINX_ISSUES_USER_PATTERN.sub(r"@\1", updated)
-        updated = RST_LINK_PATTERN.sub(r"[\1](\2)", updated)
-        updated = updated.replace("``", "`")
+        updated = LINK_PATTERN.sub(r"[\1](\2)", updated)
+        updated = INLINE_CODE_PATTERN.sub(r"`\1`", updated)
         yield updated
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument("doc", help="File to convert. Use `-` for stdin.")
-    args = parser.parse_args()
-    if args.doc == "-":
-        lines = sys.stdin.readlines()
-    else:
-        with open(args.doc) as f:
-            lines = f.readlines()
+    import sys
 
-    for line in convert_rst_to_md(lines):
+    changelog_section = sys.stdin.readlines()
+
+    for line in convert_rst_to_md(changelog_section):
         print(line, end="")
 
 
