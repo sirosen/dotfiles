@@ -1,3 +1,8 @@
+# just completer
+if type just > /dev/null; then
+    eval "$(just --completions zsh)"
+fi
+
 # globus-cli completer
 if type globus > /dev/null; then
     eval "$(globus --zsh-completer)"
