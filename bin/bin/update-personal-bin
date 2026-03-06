@@ -9,12 +9,11 @@ FNM_VERSION="1.33.1"
 SHFMT_VERSION="3.8.0"
 SHELLCHECK_VERSION="0.9.0"
 CHEAT_VERSION='4.2.2'
-GH_VERSION="2.29.0"
+GH_VERSION="2.83.1"
 MILLER_VERSION="6.3.0"
 YQ_VERSION="4.35.1"
 KUBECTL_VERSION="1.24.2"
 HELM_VERSION="3.9.0"
-DOCKER_COMPOSE_VERSION="2.14.2"
 TURBOLIFT_VERSION="2.2.0"
 TERRAFORM_VERSION="1.7.5"
 VALE_VERSION="3.12.0"
@@ -281,15 +280,6 @@ if [ $do_binary -eq 1 ]; then
   fi
   cp "kubectl-$KUBECTL_VERSION" kubectl
   cp "helm-$HELM_VERSION" helm
-
-  if [ ! -f "docker-compose-$DOCKER_COMPOSE_VERSION" ]; then
-    vecho "docker-compose v$DOCKER_COMPOSE_VERSION detected missing, will install"
-    curl -LsSf -m 60 -o "docker-compose-$DOCKER_COMPOSE_VERSION" \
-      "https://github.com/docker/compose/releases/download/v$DOCKER_COMPOSE_VERSION/docker-compose-linux-x86_64"
-    chmod +x "docker-compose-$DOCKER_COMPOSE_VERSION"
-    vecho "docker-compose install done"
-  fi
-  cp "docker-compose-$DOCKER_COMPOSE_VERSION" docker-compose
 
   if [ ! -f "turbolift-$TURBOLIFT_VERSION" ]; then
     vecho "turbolift v$TURBOLIFT_VERSION detected missing, will install"
