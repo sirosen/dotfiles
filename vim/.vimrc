@@ -56,9 +56,12 @@ if isdirectory($HOME.'/.vim/bundle/vundle')
   Plugin 'morhetz/gruvbox'
 
   " Python project plugins and completion
-  " Plugin 'davidhalter/jedi-vim'
-  " Plugin 'ycm-core/YouCompleteMe'
-  Plugin 'neovim/nvim-lspconfig'
+  if has('nvim')
+    Plugin 'neovim/nvim-lspconfig'
+  else
+    Plugin 'davidhalter/jedi-vim'
+    " Plugin 'ycm-core/YouCompleteMe'
+  endif
 
   " File-Type Plugins
   Plugin 'plasticboy/vim-markdown'
@@ -281,4 +284,6 @@ nmap <silent> <leader>blame :Git blame<cr>
 "nmap <leader>cc :YcmCompleter GoToDefinitionElseDeclaration<cr>
 
 " enable pylsp config
-source ~/.config/nvim/pylsp.lua
+if has('nvim')
+  source ~/.config/nvim/pylsp.lua
+endif
