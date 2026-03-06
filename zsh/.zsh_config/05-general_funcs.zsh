@@ -84,14 +84,60 @@ init-project-template () {
 
 # git
 
-github-clone () {
-    git clone git@github.com:"${1}".git "${@:2}"
+,use-repo () {
+  local fork=1
+  local url="$1"
+  local longrepo="${url#https://github.com/}"
+  if [ "$url" = "$longrepo" ]; then
+    echo "repo should be in 'https://github.com/...' format"
+    return 1
+  fi
+
+  shift 1
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      "--no-fork")
+        fork=0
+        ;;
+      *)
+        echo "bad args"
+        return 2
+        ;;
+    esac
+    shift 1
+  done
+
+  local owner
+  local repo
+  owner=$(cut -d'/' -f1 <<< "$longrepo")
+  repo=$(cut -d'/' -f2 <<< "$longrepo")
+
+  mkdir -p ~/projects/github/"${owner}"
+  cd ~/projects/github/"${owner}"
+  if [ -d "$repo" ]; then
+    cd "$repo"
+    echo "local clone of repo appears to already exist"
+    echo "changed directory to ${PWD}"
+    return 0
+  fi
+
+  echo "no local copy exists, cloning"
+  gh repo clone $url
+  cd "$repo"
+  gh repo set-default "$longrepo"
+  if [ $fork -eq 1 ]; then
+    echo "setting up fork"
+    gh repo fork --remote
+  fi
+
+  if [ -f ".pre-commit-config.yaml" ]; then
+    echo "detected pre-commit config, setting up hooks"
+    pre-commit install --install-hooks
+  else
+    echo "no pre-commit config detected"
+  fi
 }
 
-
-globus-clone () {
-    github-clone globusonline/"$1" "${@:2}"
-}
 
 remote-push () {
     br=$(git rev-parse --abbrev-ref HEAD)
