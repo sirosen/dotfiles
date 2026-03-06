@@ -48,7 +48,21 @@ _switch_aws_account() {
 }
 setprofile-shared-amicore () { _switch_aws_account shared-amicore; }
 setprofile-transfer () { _switch_aws_account transfer; }
-setprofile-search () { _switch_aws_account search; }
+setprofile-search () {
+  local account="search"
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      "--esgf")
+        account="esgf-search"
+        ;;
+      "--labsfs")
+        account="labsfs-search"
+        ;;
+    esac
+    shift 1
+  done
+  _switch_aws_account "$account"
+}
 setprofile-automate () { _switch_aws_account automate; }
 setprofile-dev () { _switch_aws_account dev; }
 
@@ -61,11 +75,6 @@ get-flows-rds-cxn () {
         --secret-id "flows/$1" \
         --query "SecretString" \
         --output text | jq '.rds.users.admin.db_url' -r
-}
-
-reconstitute-flows-env-vars () {
-  NEW_VERSION="$(poetry version -s)"
-  BRANCH_NAME="$(git rev-parse --abbrev-ref HEAD)"
 }
 
 nexus-auth () {
