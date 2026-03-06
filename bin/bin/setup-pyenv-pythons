@@ -4,6 +4,7 @@
 # but also in the order they should be written to `~/.pyenv/version
 DEFAULT_VERSIONS=(
   "3.13.6"
+  "3.14.2"
   "3.12.11"
   "3.11.13"
   "3.10.18"
@@ -11,7 +12,6 @@ DEFAULT_VERSIONS=(
   "3.8.20"
   "3.7.17"
   "3.6.15"
-  "3.14.0rc1"
   "pypy3.10"
   "2.7.18"
 )
