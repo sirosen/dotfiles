@@ -23,7 +23,7 @@ f = [
   ":w",
   # using `:sh` to execute seems to block, and the reload fails to run
   # nesting in an echo "forces" it
-  ":echo %sh{pre-commit run --files %{buffer_name} > /dev/null || true}",
+  ":echo %sh{prek run --files %{buffer_name} > /dev/null || true}",
   ":reload",
 ]
 
