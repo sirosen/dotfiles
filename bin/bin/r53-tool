@@ -26,6 +26,7 @@ Examples:
     gcsv5.sirosen.globuscs.info CNAME ec2-54-237-153-78.compute-1.amazonaws.com 60
     gcsv5.sirosen.globuscs.info CNAME ec2-54-237-153-78.compute-1.amazonaws.com
 """
+
 import argparse
 import os
 import shlex

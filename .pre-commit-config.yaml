@@ -2,30 +2,30 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0
+  rev: v6.0.0
   hooks:
     - id: trailing-whitespace
     - id: end-of-file-fixer
     - id: check-yaml
     - id: check-added-large-files
 - repo: https://github.com/psf/black
-  rev: 25.1.0
+  rev: 26.3.1
   hooks:
     - id: black
 - repo: https://github.com/PyCQA/flake8
-  rev: 7.1.2
+  rev: 7.3.0
   hooks:
     - id: flake8
       additional_dependencies:
-        - 'flake8-bugbear==24.12.12'
-        - 'flake8-comprehensions==3.16.0'
-        - 'flake8-typing-as-t==1.0.0'
+        - 'flake8-bugbear==25.11.29'
+        - 'flake8-comprehensions==3.17.0'
+        - 'flake8-typing-as-t==1.1.0'
 - repo: https://github.com/PyCQA/isort
-  rev: 6.0.1
+  rev: 8.0.1
   hooks:
     - id: isort
 - repo: https://github.com/asottile/pyupgrade
-  rev: v3.19.1
+  rev: v3.21.2
   hooks:
     - id: pyupgrade
       args: ["--py310-plus"]
