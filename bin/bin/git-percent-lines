@@ -6,5 +6,6 @@ total_lines=$(wc -l "$FILENAME" | cut -d' ' -f1)
 echo "$FILENAME -- $total_lines lines"
 git blame --line-porcelain "$FILENAME" | grep '^author ' | sort -f | uniq -ic | sort -n | awk -v total_lines="$total_lines" '{
   author_pct=sprintf("%.2f", $1 * 100 / total_lines) "%"
-  print sprintf("%8s  ", author_pct), $3, $4
+  $1=$2=""
+  print sprintf("%8s  ", author_pct), $0
 }'
