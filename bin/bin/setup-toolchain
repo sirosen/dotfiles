@@ -1,0 +1,53 @@
+#!/bin/bash
+set -e
+cd "$(dirname "$0")"
+
+print_usage () {
+  echo "USAGE: setup-toolchain [-h|--help] {go,python,npm}"
+}
+
+TOOLCHAINS=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    "-h"|"--help")
+      print_usage
+      exit 0
+      ;;
+    "npm")
+      echo "TODO: npm setup"
+	  exit 1
+      ;;
+    "python")
+      echo "TODO: python setup"
+	  exit 1
+      ;;
+    "go")
+	    TOOLCHAINS+=("go")
+      ;;
+    *)
+      print_usage
+      exit 2
+      ;;
+  esac
+  shift 1
+done
+
+if [ "${#TOOLCHAINS[@]}" -eq 0 ]; then
+  print_usage
+  exit 2
+fi
+
+DO_GO=0
+for toolchain in "${TOOLCHAINS[@]}"; do
+  case "$toolchain" in
+    "go")
+      DO_GO=1
+      ;;
+    *)
+      ;;
+  esac
+done
+
+if [ "$DO_GO" -eq 1 ]; then
+  sudo snap install --classic go
+fi
