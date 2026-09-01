@@ -14,12 +14,14 @@ MILLER_VERSION="6.3.0"
 YQ_VERSION="4.35.1"
 KUBECTL_VERSION="1.24.2"
 HELM_VERSION="3.9.0"
+SPOTIFYD_VERSION="0.4.2"
 TURBOLIFT_VERSION="2.2.0"
+TYPST_VERSION="0.15.1"
 TERRAFORM_VERSION="1.7.5"
 VALE_VERSION="3.12.0"
 
 print_usage () {
-  echo "USAGE: update-personal-bin [-h|--help] [--verbose] [--npm] [--python] [--binary] [--all]"
+  echo "USAGE: update-personal-bin [-h|--help] [--verbose] [--npm] [--python] [--binary] [--go] [--all]"
 }
 
 vecho () {
@@ -45,6 +47,7 @@ run-pip-install () {
 # handle args
 do_npm=0
 do_python=0
+do_go=0
 do_binary=0
 verbose=0
 while [ $# -gt 0 ]; do
@@ -59,12 +62,16 @@ while [ $# -gt 0 ]; do
     "--python")
       do_python=1
       ;;
+    "--go")
+      do_go=1
+      ;;
     "--binary")
       do_binary=1
       ;;
     "--all")
       do_npm=1
       do_binary=1
+      do_go=1
       ;;
     "--verbose")
       verbose=1
@@ -76,7 +83,7 @@ while [ $# -gt 0 ]; do
   esac
   shift 1
 done
-if [ "$do_npm" -eq 0 ] && [ "$do_python" -eq 0 ] && [ "$do_binary" -eq 0 ]; then
+if [ "$do_npm" -eq 0 ] && [ "$do_python" -eq 0 ] && [ "$do_go" -eq 0 ] && [ "$do_binary" -eq 0 ]; then
   print_usage
   exit 2
 fi
@@ -112,6 +119,16 @@ if [ $do_python -eq 1 ]; then
   fi
   .venv-libcst/bin/pip install -U libcst
   echo ".venv-libcst done"
+else
+  vecho "no"
+fi
+
+vecho -n "check if Go tools requested..."
+if [ $do_go -eq 1 ]; then
+  vecho "yes"
+  if ! command -v pinact; then
+    go install github.com/suzuki-shunsuke/pinact/v4/cmd/pinact@latest
+  fi
 else
   vecho "no"
 fi
@@ -316,6 +333,51 @@ if [ $do_binary -eq 1 ]; then
     cp "vale-$VALE_VERSION" vale
     vecho "vale install done"
   fi
+
+  if [ ! -f spotifyd-$SPOTIFYD_VERSION ]; then
+    vecho "spotifyd v${SPOTIFYD_VERSION} detected missing, will install"
+    tmpdir="$(mktemp -d)"
+    curl -LsSf -m 60 -o "$tmpdir/spotifyd-v${SPOTIFYD_VERSION}.tar.gz" \
+      "https://github.com/Spotifyd/spotifyd/releases/download/v${SPOTIFYD_VERSION}/spotifyd-linux-x86_64-default.tar.gz"
+    tar -xzf "$tmpdir/spotifyd-v$SPOTIFYD_VERSION.tar.gz" -C "$tmpdir"
+    mv "$tmpdir/spotifyd" "spotifyd-$SPOTIFYD_VERSION"
+    cp "spotifyd-$SPOTIFYD_VERSION" spotifyd
+    chmod +x spotifyd
+    rm -r "$tmpdir"
+    cat > ~/.config/systemd/user/spotifyd.service << EOH
+[Unit]
+Description=A spotify playing daemon
+Documentation=https://github.com/Spotifyd/spotifyd
+Wants=sound.target
+After=sound.target
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/home/sirosen/bin/spotifyd --no-daemon
+Restart=always
+RestartSec=12
+
+[Install]
+WantedBy=default.target
+EOH
+    vecho "spotifyd install done (systemd unit may need a reload)"
+  fi
+
+  if [ ! -f typst-$TYPST_VERSION ]; then
+    vecho "typst v${TYPST_VERSION} detected missing, will install"
+    tmpdir="$(mktemp -d)"
+
+    curl -LsSf -m 60 -o "$tmpdir/typst.tar.xz" \
+      "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz"
+
+    tar -xJf "$tmpdir/typst.tar.xz" -C "$tmpdir"
+    mv "$tmpdir/typst-x86_64-unknown-linux-musl/typst" "typst-${TYPST_VERSION}"
+    cp "typst-${TYPST_VERSION}" typst
+    chmod +x typst
+    rm -r "$tmpdir"
+  fi
+
 else
   vecho "no"
 fi
