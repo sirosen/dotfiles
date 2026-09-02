@@ -3,6 +3,10 @@ name = "python"
 text-width = 88
 rulers = [88]
 
+[language-server.ruff]
+command = "ruff"
+args = ["server"]
+
 [language-server.pylsp.config.pylsp]
 # plugins.mypy.enabled = true
 # plugins.rope_completion.enabled = true
