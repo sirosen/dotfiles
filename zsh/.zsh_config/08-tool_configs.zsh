@@ -5,6 +5,8 @@ if command -v fnm > /dev/null; then
   eval "$(fnm env)"
 fi
 
+export GOPATH=~/.go
+
 # explicit default to autodetect
 export EC2SSH_AUTODETECT=1
 export EC2SSH_DISABLE_KNOWN_HOSTS=1

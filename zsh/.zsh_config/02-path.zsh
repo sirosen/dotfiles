@@ -7,6 +7,8 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
 PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 # rust
 PATH="$HOME/.cargo/bin:$PATH"
+# go
+PATH="$PATH:$HOME/.go/bin"
 # add rbenv
 PATH="$HOME/.rbenv/bin:$PATH"
 # add hextc
