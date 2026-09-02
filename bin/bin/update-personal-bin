@@ -2,6 +2,7 @@
 set -e
 cd "$(dirname "$0")"
 
+DOCKER_SANDBOX_VERSION="0.39.0"
 VIM_VERSION="9.1.0443"
 NEOVIM_VERSION="0.11.3"
 HELIX_VERSION="25.07.1"
@@ -193,7 +194,7 @@ if [ $do_binary -eq 1 ]; then
   vecho "yes"
 
   if [ ! -f "vim-$VIM_VERSION" ]; then
-    vecho "vim v$VIM_VERSION detected missing, will install"
+    echo "vim v$VIM_VERSION detected missing, will install"
     curldown "https://github.com/vim/vim/archive/refs/tags/v${VIM_VERSION}.tar.gz" | \
       tar -xz
     pushd vim-$VIM_VERSION/src
@@ -208,11 +209,11 @@ if [ $do_binary -eq 1 ]; then
     ln -s .vim9/bin/vim vim-$VIM_VERSION
     rm -f vim
     ln -s vim-$VIM_VERSION vim
-    vecho "vim install done"
+    echo "vim install done"
   fi
 
   if [ ! -f zed ]; then
-    vecho "zed detected missing, will install"
+    echo "zed detected missing, will install"
     mkdir .zed
     curldown "https://zed.dev/api/releases/stable/latest/zed-linux-x86_64.tar.gz" | \
       tar -xz -C .zed
@@ -221,36 +222,36 @@ if [ $do_binary -eq 1 ]; then
   fi
 
   if [ ! -d ".helix-$HELIX_VERSION" ]; then
-    vecho "helix v$HELIX_VERSION detected missing, will install"
+    echo "helix v$HELIX_VERSION detected missing, will install"
     curldown --github-release "helix-editor/helix" \
       "${HELIX_VERSION}/helix-${HELIX_VERSION}-x86_64-linux.tar.xz" | \
       tar -xJ
     mv "helix-${HELIX_VERSION}-x86_64-linux" ".helix-${HELIX_VERSION}"
     ln -s .helix-${HELIX_VERSION}/hx hx
-    vecho "helix install done"
+    echo "helix install done"
   fi
 
   if [ ! -f "fnm-$FNM_VERSION" ]; then
-    vecho "fnm v$FNM_VERSION detected missing, will install"
+    echo "fnm v$FNM_VERSION detected missing, will install"
     curldown --github-release "Schniz/fnm" "v${FNM_VERSION}/fnm-linux.zip" \
       -o "fnm-${FNM_VERSION}.gz"
     gunzip "fnm-${FNM_VERSION}.gz"
     chmod +x "fnm-${FNM_VERSION}"
-    vecho "fnm install done"
+    echo "fnm install done"
   fi
   cp "fnm-$FNM_VERSION" fnm
 
   if [ ! -f "mlr" ]; then
-    vecho "mlr (miller) v$MILLER_VERSION detected missing, will install"
+    echo "mlr (miller) v$MILLER_VERSION detected missing, will install"
     curldown --github-release "johnkerl/miller" "v${MILLER_VERSION}/miller-${MILLER_VERSION}-linux-amd64.tar.gz" | \
       tar -xz
     mv "miller-${MILLER_VERSION}-linux-amd64/mlr" .
     rm -r "miller-${MILLER_VERSION}-linux-amd64"
-    vecho "mlr install done"
+    echo "mlr install done"
   fi
 
   if [ ! -f "yq-$YQ_VERSION" ]; then
-    vecho "yq v$YQ_VERSION detected missing, will install"
+    echo "yq v$YQ_VERSION detected missing, will install"
     curldown --github-release "mikefarah/yq" "v${YQ_VERSION}/yq_linux_amd64.tar.gz" | \
       tar xz
     mv yq_linux_amd64 yq-$YQ_VERSION
@@ -258,39 +259,39 @@ if [ $do_binary -eq 1 ]; then
     mkdir -p ~/.local/share/man/man1/
     rm install-man-page.sh
     mv yq.1 ~/.local/share/man/man1
-    vecho "yq install done"
+    echo "yq install done"
   fi
 
   if [ ! -f "eksctl" ]; then
-    vecho "eksctl detected missing, will install"
+    echo "eksctl detected missing, will install"
     curldown --github-release "weaveworks/eksctl" "latest/eksctl_$(uname -s)_amd64.tar.gz" | \
       tar -xz
     chmod +x eksctl
-    vecho "eksctl install done"
+    echo "eksctl install done"
   fi
 
   if [ ! -f "shfmt-$SHFMT_VERSION" ]; then
-    vecho "shfmt v$SHFMT_VERSION detected missing, will install"
+    echo "shfmt v$SHFMT_VERSION detected missing, will install"
     curldown --github-release "mvdan/sh" \
       "v${SHFMT_VERSION}/shfmt_v${SHFMT_VERSION}_linux_amd64"
       "shfmt-$SHFMT_VERSION"
     chmod +x "shfmt-$SHFMT_VERSION"
     cp "shfmt-$SHFMT_VERSION" shfmt
-    vecho "shfmt install done"
+    echo "shfmt install done"
   fi
 
   if [ ! -f "cheat-$CHEAT_VERSION" ]; then
-    vecho "cheat v$CHEAT_VERSION detected missing, will install"
+    echo "cheat v$CHEAT_VERSION detected missing, will install"
     setup_tmpdir
     curldown --github-release "cheat/cheat" "$CHEAT_VERSION/cheat-linux-amd64.gz" "$TMPDIR/cheat.gz"
     gunzip -c "$TMPDIR/cheat.gz" > "cheat-$CHEAT_VERSION"
     chmod +x "cheat-$CHEAT_VERSION"
     cp "cheat-$CHEAT_VERSION" cheat
-    vecho "cheat install done"
+    echo "cheat install done"
   fi
 
   if [ ! -f "shellcheck-$SHELLCHECK_VERSION" ]; then
-    vecho "shellcheck v$SHELLCHECK_VERSION detected missing, will install"
+    echo "shellcheck v$SHELLCHECK_VERSION detected missing, will install"
     setup_tmpdir
     curldown --github-release "koalaman/shellcheck" \
       "v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
@@ -298,64 +299,64 @@ if [ $do_binary -eq 1 ]; then
     tar -xf "$TMPDIR/shellcheck.tar.xz" -C "$TMPDIR"
     mv "$TMPDIR/shellcheck-v${SHELLCHECK_VERSION}/shellcheck" "shellcheck-$SHELLCHECK_VERSION"
     cp "shellcheck-$SHELLCHECK_VERSION" shellcheck
-    vecho "shellcheck install done"
+    echo "shellcheck install done"
   fi
 
   if [ ! -f "gh-$GH_VERSION" ]; then
-    vecho "gh v$GH_VERSION detected missing, will install"
+    echo "gh v$GH_VERSION detected missing, will install"
     setup_tmpdir
     curldown --github-release "cli/cli" "v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz" \
       "$TMPDIR/gh.tar.gz"
     tar -xzf "$TMPDIR/gh.tar.gz" -C "$TMPDIR"
     mv "$TMPDIR/gh_${GH_VERSION}_linux_amd64/bin/gh" "gh-$GH_VERSION"
     cp "gh-$GH_VERSION" gh
-    vecho "gh install done"
+    echo "gh install done"
   fi
 
   # kubectl/helm
   if [ ! -f "kubectl-$KUBECTL_VERSION" ]; then
-    vecho "kubectl v$KUBECTL_VERSION detected missing, will install"
+    echo "kubectl v$KUBECTL_VERSION detected missing, will install"
     curldown "https://dl.k8s.io/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl" \
       "kubectl-$KUBECTL_VERSION"
     chmod +x "kubectl-$KUBECTL_VERSION"
     cp "kubectl-$KUBECTL_VERSION" kubectl
-    vecho "kubectl install done"
+    echo "kubectl install done"
   fi
   if [ ! -f "helm-$HELM_VERSION" ]; then
-    vecho "helm v$HELM_VERSION detected missing, will install"
+    echo "helm v$HELM_VERSION detected missing, will install"
     setup_tmpdir
     curldown "https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz" \
       "$TMPDIR/helm.tar.gz"
     tar -xzf "$TMPDIR/helm.tar.gz" -C "$TMPDIR"
     mv "$TMPDIR/linux-amd64/helm" "helm-$HELM_VERSION"
     cp "helm-$HELM_VERSION" helm
-    vecho "helm install done"
+    echo "helm install done"
   fi
 
   if [ ! -f "turbolift-$TURBOLIFT_VERSION" ]; then
-    vecho "turbolift v$TURBOLIFT_VERSION detected missing, will install"
+    echo "turbolift v$TURBOLIFT_VERSION detected missing, will install"
     setup_tmpdir
     curldown --github-release "Skyscanner/turbolift" "${TURBOLIFT_VERSION}/turbolift_${TURBOLIFT_VERSION}_Linux_x86_64.tar.gz" \
       "$TMPDIR/turbolift-v$TURBOLIFT_VERSION.tar.gz"
     tar -xzf "$TMPDIR/turbolift-v$TURBOLIFT_VERSION.tar.gz" -C "$TMPDIR"
     mv "$TMPDIR/turbolift" "turbolift-$TURBOLIFT_VERSION"
     cp "turbolift-$TURBOLIFT_VERSION" turbolift
-    vecho "turbolift install done"
+    echo "turbolift install done"
   fi
 
   if [ ! -f terraform-$TERRAFORM_VERSION ]; then
-    vecho "terraform v$TERRAFORM_VERSION detected missing, will install"
+    echo "terraform v$TERRAFORM_VERSION detected missing, will install"
     setup_tmpdir
     curldown "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
       "$TMPDIR/terraform-v$TERRAFORM_VERSION.zip" \
     unzip "$TMPDIR/terraform-v$TERRAFORM_VERSION.zip" -d "$TMPDIR"
     mv "$TMPDIR/terraform" "terraform-$TERRAFORM_VERSION"
     cp "terraform-$TERRAFORM_VERSION" terraform
-    vecho "terraform install done"
+    echo "terraform install done"
   fi
 
   if [ ! -f vale-$VALE_VERSION ]; then
-    vecho "vale v$VALE_VERSION detected missing, will install"
+    echo "vale v$VALE_VERSION detected missing, will install"
     setup_tmpdir
     curldown --github-release "errata-ai/vale" \
       "v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz" \
@@ -363,11 +364,11 @@ if [ $do_binary -eq 1 ]; then
     tar -xzf "$TMPDIR/vale-v$VALE_VERSION.tar.gz" -C "$TMPDIR"
     mv "$TMPDIR/vale" "vale-$VALE_VERSION"
     cp "vale-$VALE_VERSION" vale
-    vecho "vale install done"
+    echo "vale install done"
   fi
 
   if [ ! -f spotifyd-$SPOTIFYD_VERSION ]; then
-    vecho "spotifyd v${SPOTIFYD_VERSION} detected missing, will install"
+    echo "spotifyd v${SPOTIFYD_VERSION} detected missing, will install"
     setup_tmpdir
     curldown --github-release "Spotifyd/spotifyd" \
       "v${SPOTIFYD_VERSION}/spotifyd-linux-x86_64-default.tar.gz" \
@@ -393,12 +394,11 @@ RestartSec=12
 [Install]
 WantedBy=default.target
 EOH
-    vecho "spotifyd install done (systemd unit may need a reload)"
+    echo "spotifyd install done (systemd unit may need a reload)"
   fi
 
   if [ ! -f typst-$TYPST_VERSION ]; then
-    vecho "typst v${TYPST_VERSION} detected missing, will install"
-    set -x
+    echo "typst v${TYPST_VERSION} detected missing, will install"
     setup_tmpdir
 
     curldown --github-release "typst/typst" \
@@ -409,6 +409,22 @@ EOH
     mv "$TMPDIR/typst-x86_64-unknown-linux-musl/typst" "typst-${TYPST_VERSION}"
     cp "typst-${TYPST_VERSION}" typst
     chmod +x typst
+
+    echo "typst install done"
+  fi
+
+  if [ ! -f "sbx-$DOCKER_SANDBOX_VERSION" ]; then
+    echo "sbx v${DOCKER_SANDBOX_VERSION} detected missing, will install"
+    setup_tmpdir
+
+    curldown --github-release "docker/sbx-releases" \
+      "v${DOCKER_SANDBOX_VERSION}/DockerSandboxes-linux.tar.gz" \
+      "$TMPDIR/sbx.tar.gz"
+    tar -xzf "$TMPDIR/sbx.tar.gz" -C "$TMPDIR"
+    mv "$TMPDIR/docker-sbx/sbx" "sbx-${DOCKER_SANDBOX_VERSION}"
+    cp "sbx-${DOCKER_SANDBOX_VERSION}" "sbx"
+
+    echo "sbx install done"
   fi
 
 else
