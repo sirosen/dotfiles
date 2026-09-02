@@ -1,25 +1,43 @@
 [user]
-    email = sirosen@globus.org
+    email = sirosen0@gmail.com
     name = Stephen Rosen
     signingkey = FC694E40DC03A8B702D96372CF7E843C41E814C9
-[push]
-    autoSetupRemote = true
-[pull]
-	ff = only
+
 [core]
 	excludesfile = ~/.gitignore_global
+	pager = delta
+
+[interactive]
+	diffFilter = delta --color-only
+
 [alias]
     tree = log --graph --decorate --all
     unstage = restore --staged .
     forget = checkout -- .
     conflicts = diff --name-only --diff-filter=U
     pr-nonews = "!gh pr create --label no-news-is-good-news"
+    pr-chronoskip = "!gh pr create --label bot:chronographer:skip"
     logdiff = "!f () { \
       base=\"$1\"; \
       [ -n \"$base\" ] || base=main; \
       git diff HEAD $(git merge-base HEAD \"$base\") > logdiff.diff ; \
     }; f"
+
 [init]
 	defaultBranch = main
-[blame]
-#	ignoreRevsFile = .git-blame-ignore-revs
+
+[push]
+    autoSetupRemote = true
+
+[pull]
+	ff = only
+
+# [blame]
+# 	ignoreRevsFile = .git-blame-ignore-revs
+
+[merge]
+	conflictStyle = zdiff3
+
+[delta]
+	navigate = true
+	dark = true
